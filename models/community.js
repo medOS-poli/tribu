@@ -1,5 +1,5 @@
 "use strict";
-
+const hat = require('hat');
 const mongoose = require('./db');
 const schema = mongoose.Schema;
 const user = require('./user');
@@ -17,15 +17,19 @@ const communityObject =
   user_moderator: [{type: schema.Types.ObjectId, ref: 'User' }],
   users: [{type: schema.Types.ObjectId, ref: 'User' }],
   creationDate: {type: Date, default: Date.now()},
-  privacy: {type:String, enum:['Private','Public'], default: 'Public', require: true}
+  privacy: {type:String, enum:['Private','Public'], default: 'Public', require: true},
+  requests: {
+    users: [{type: schema.Types.ObjectId, ref: 'User'}]
+  }
 };
 
 const communitySchema = new schema(communityObject,{collection : "community"});
+
 const community = mongoose.model('Community',communitySchema);
 
 class communityModel
 {
-  register(data, cb)
+  registerCommunity(data, cb)
   {
     community.create(data, (err)=>
     {
@@ -34,8 +38,19 @@ class communityModel
         console.log(err);
         cb(false,{error: err});
       }
-      else cb(true);
+      else cb(true,data);
     });
+  }
+
+  generateCommunityToken(data)
+  {
+    let token = hat();
+    return data+token.slice(0,4);
+  }
+
+  registerUser(user,cb)
+  {
+
   }
 }
 

@@ -25,7 +25,7 @@ const user = mongoose.model('User',userSchema);
 
 class userModel
 {
-  register(data, cb)
+  registerUser(data, cb) /*cb=callback*/
   {
     user.create(data, (err)=>
     {
@@ -34,14 +34,13 @@ class userModel
         cb(false,{error: "Couldn't add user"});
         console.log(err);
       }else
-        {
-          cb(true,{error: "User added"});
-        }
-
+      {
+        cb(true,{error: "User added"});
+      }
     });
   }
 
-  get(who,cb)
+  getUser(who,cb)
   {
     user.findOne({nick: who.nick}, (err,data)=>
     {
@@ -50,7 +49,7 @@ class userModel
     });
   }
 
-  getAll(cb)
+  getAllUsers(cb)
   {
     user.find({},(err,data)=>
     {

@@ -1,19 +1,18 @@
 "use strict";
 
 /*IMPORT PACKAGES*/
-const express = require('express');
-// const pug = require('pug');
-const bodyParser = require('body-parser');
+const express = require('express'),
+  bodyParser = require('body-parser');
 
 /*PATHS*/
-const publicDir = express.static(`${__dirname}/public`);
-// const viewsDir = `${__dirname}/views`;
-const routes = require('./routes/router');
-const conf = require('./conf');
+const publicDir = express.static(`${__dirname}/public`),
+  routes = require('./routes/router'),
+  conf = require('./conf');
+
+const port = process.env.PORT || conf.server.port;
 
 /*SETTINGS*/
 process.setMaxListeners(0);
-const port = process.env.PORT || conf.server.port;
 
 /*APP*/
 let app = express();

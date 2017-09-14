@@ -2,12 +2,5 @@
   "server" :
   {
     "port" : 3001
-  },
-  
-  "auth" :
-  {
-    "SECRET_TOKEN": "grupodeinvestigacion"
-
   }
-
 }

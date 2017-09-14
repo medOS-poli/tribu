@@ -15,7 +15,7 @@ class API
       id: req.query.id || null,
     }
 
-    user.get(who,(ok,data)=>
+    user.getUser(who,(ok,data)=>
     {
       if(ok) cb(data);
     });

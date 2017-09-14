@@ -1,8 +1,8 @@
 "use strict";
 
 /*ROUTES*/
-const lsRouter = require('./ls-router');
-const apiRouter = require('./api-router');
+const lsRouter = require('./ls_router');
+const apiRouter = require('./api_router');
 
 const base = require('./base');
 module.exports = base;

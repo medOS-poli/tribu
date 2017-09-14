@@ -2,29 +2,30 @@
 
 const userModel = require('../models/user');
 const communityModel = require('../models/community');
+
 const user = new userModel();
 const community = new communityModel();
 
 /*REGISTRATION CONTROL*/
-class Singup
+class Signup
 {
-  user(req,res,next)
+  signupUser(req,res,next)
   {
-    let newUser=
+    let newUser= new user(
     {
       _id: (req.body._id || null),
       email : req.body.email,
       nick : req.body.nick,
       name : req.body.name,
-      // second_name : req.body.second_name,
+      second_name : req.body.second_name,
       last_name : req.body.last_name,
-      // second_last_name: req.body.second_last_name,
+      second_last_name: req.body.second_last_name,
       password : req.body.password,
       gender: req.body.gender,
       lastLogin: Date.now()
-    }
+    });
 
-    user.register(newUser,(ok,msg)=>
+    user.registerUser(newUser,(ok,msg)=>
     {
       if(ok)
       {
@@ -38,32 +39,32 @@ class Singup
     });
   }
 
-  community(req,res,next)
+  signupCommunity(req,res,next)
   {
-    let newCommunity =
+    let newCommunity = new community(
     {
       _id: (req.body._id || null),
       name : req.body.name,
       title : req.body.title,
       description : req.body.description,
       creator: req.body.creator,
-      inv_token : req.body.inv_token,
+      inv_token: community.generateCommunityToken(req.body.name),
       user_admin: req.body.user_admin,
       user_moderator: req.body.user_moderator,
       users: req.body.users,
       privacy: req.body.privacy
-    }
+    });
 
-    community.register(newCommunity,(ok,err)=>
+    community.registerCommunity(newCommunity,(ok,data)=>
     {
       if(ok)
       {
         console.log("COMMUNITY ADDED");
-        res.status(200).send(newCommunity);
+        res.status(200).send(data);
       }else
       {
         console.log("COMMUNITY REGISTRATION FAILED");
-        res.status(400).send(err);
+        res.status(400).send(data);
       }
     });
   }
@@ -74,4 +75,4 @@ class Login
   user(req,res,next){}
 }
 
-module.exports = {Singup, Login};
+module.exports = {Signup, Login};
