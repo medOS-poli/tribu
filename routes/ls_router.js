@@ -1,6 +1,7 @@
 "use strict";
-const base = require('./base');
-
+const base = require('./base'),
+    auth = require('../middlewares/auth');
+    
 /*CONTROLLERS DEFS*/
 const lsController = require('../controllers/ls_controller');
 
@@ -10,8 +11,8 @@ const login = new lsController.Login();
 
 /*ROUTES*/
 base.post('/newUser',signup.signupUser);
-base.post('/newCommunity',signup.signupCommunity);
+base.post('/newCommunity',auth,signup.signupCommunity);
 
-base.post('/login',login.user);
+base.post('/login',login.loginUser);
 
 module.exports = base;

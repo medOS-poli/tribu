@@ -2,32 +2,33 @@
 
 const userModel = require('../models/user');
 const communityModel = require('../models/community');
-const user = new userModel();
+
+const User = new userModel.user();
 
 class API
 {
-  getUser(req,res,cb)
-  {
-    let who =
+    getUser(req,res,cb)
     {
-      nick: req.query.nick || null,
-      email: req.query.email || null,
-      id: req.query.id || null,
+        let who =
+        {
+            nick: req.query.nick || null,
+            email: req.query.email || null,
+            id: req.query.id || null
+        }
+
+            User.getUser(who,(ok,data)=>
+            {
+                if(ok) cb(data);
+            });
     }
 
-    user.getUser(who,(ok,data)=>
+    getUsers(req,res,next)
     {
-      if(ok) cb(data);
-    });
-  }
-
-  getUsers(req,res,next)
-  {
-    user.getAll((ok,data)=>
-    {
-      if(ok) res.status(200).send(data);
-    });
-  }
+        User.getAllUsers((ok,data)=>
+        {
+            if(ok) res.status(200).send(data);
+        });
+    }
 }
 
 module.exports = API;

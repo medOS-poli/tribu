@@ -2,6 +2,6 @@
 	"mongo" :
 	{
 		"host" : "localhost",
-		"db" : "munis"
+		"db" : "Poli"
 	}
 }
