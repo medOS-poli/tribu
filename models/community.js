@@ -17,9 +17,10 @@ const communityObject =
     inv_token : {type: String, unique:true, required:true},
     user_admin: [{type: schema.Types.ObjectId, ref: 'Users', require: true }],
     user_moderator: [{type: schema.Types.ObjectId, ref: 'Users' }],
-    users: [{type: schema.Types.ObjectId, ref: 'Users' }],
+    users: [{type: schema.Types.ObjectId, ref: 'Users'}],
+    //users: [{user_id:{type: schema.Types.ObjectId, ref: 'Users'},date:Date.now()}],
     creationDate: {type: Date, default: Date.now()},
-    privacy: {type:String, enum:['PRIVATE','PUBLIC'], default: 'PUBLIC', require: true},
+    privacy: {type:String, enum:['PRIVATE','PUBLIC','OPEN'], default: 'OPEN', require: true},
     requests: {
         users: [{type: schema.Types.ObjectId, ref: 'Users'}]
     }
@@ -57,10 +58,26 @@ class communityActions
         return data+token.slice(0,4);
     }
 
-    registerUser(user,cb)
+    registerUser(query,update,cb)
     {
-
+        community.update(query,update,(err,updated)=>
+        {
+            if(err) return cb(false, {error:err});
+            return cb(true,{message:"User added"});
+        });
     }
+
+    getCommunity(query,cb)
+    {
+        community.findOne(query, (err,community)=>
+        {
+            if(err) return cb(false, {error: err});
+            if(!community)  return cb(false, {error: "The community doesn't exists"});
+                     
+            return cb(true,community);
+        });
+    }
+
 }
 
 module.exports = {communityActions,community};

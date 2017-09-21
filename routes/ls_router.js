@@ -12,6 +12,7 @@ const login = new lsController.Login();
 /*ROUTES*/
 base.post('/newUser',signup.signupUser);
 base.post('/newCommunity',auth,signup.signupCommunity);
+base.post('/newUserCommunity',signup.signupUserCommunity);
 
 base.post('/login',login.loginUser);
 

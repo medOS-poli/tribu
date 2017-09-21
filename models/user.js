@@ -57,7 +57,7 @@ const user = mongoose.model('User',userSchema);
 
 class userActions
 {
-    registerUser(newUser, cb) /*cb=callback*/
+    registerUser(newUser, cb) 
     {        
         newUser.save((err)=>
         {
@@ -71,7 +71,7 @@ class userActions
 
     passUser(who, cb)
     {
-        user.findOne({email: who.email},{password:1},(err,user)=>
+        user.findOne({email: who.email},{password:1},(err,user)=> //=> function
         {            
             if(err) return cb(false,{error: err});
             if(!user)  return cb(false,{error: "User doesn't exists"});

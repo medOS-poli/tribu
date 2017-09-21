@@ -26,6 +26,8 @@ class Signup
             lastLogin: Date.now()
         });
 
+        console.log(req.body,newUser);
+
         User.registerUser(newUser,(ok,msg)=>
         {
             if(ok)
@@ -57,6 +59,43 @@ class Signup
             else return res.status(400).send(msg);            
         });
     }
+
+    signupUserCommunity(req,res)
+    {
+        if(req.body)
+        {
+            User.getUser({$or:[{email:req.body.email},{nick:req.body.nick}]},(ok,msgUser)=>
+            {
+                if(ok)
+                {
+                    Community.getCommunity({$or:[{inv_token:req.body.inv_token},{name:req.body.name}]},(ok,msg)=>
+                    {
+                        if(ok)
+                        {
+                            //Verificar el tipo de comunidad
+                            switch (msg.privacy)
+                            {
+                                //{$set:{'users.$.user_id':msgUser._id}} 
+                                case "OPEN":
+                                {                                   
+                                    Community.registerUser({$or:[{name:msg.name},{inv_token:msg.inv_token}]}, {$set:{"$push":{users:msgUser._id}}},(ok,obj)=>
+                                    {
+                                        if(ok) return res.status(200).send({message:"User added to community"});
+                                        return res.status(200).send({error:obj});
+                                        
+                                    }); break;
+                                }
+                                case "PUBLIC": return res.status(500).send({error:"Community is PUBLIC"}); break;
+                                case "PIRVATE": return res.status(500).send({error:"Community is PRIVATE"}); break;
+                            }
+                        }else return res.status(400).send({message:"Community doesn't exist"});
+                    });
+                } else return res.status(400).send({message:"User doesn't exist"});
+            });
+        } else return res.status(400).send({message:'Need request body'});
+        
+    }
+
 }
 
 class Login
