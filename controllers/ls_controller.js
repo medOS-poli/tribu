@@ -2,10 +2,13 @@
 
 const userModel = require('../models/user'),
     communityModel = require('../models/community'),
+    groupModel = require('../models/group'),
     hash = require('../services/hash');
 
 const User = new userModel.userActions();
 const Community = new communityModel.communityActions();
+const Group = new groupModel.groupActions();
+
 const emailRegex = /^[-\w.%+]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,125}[A-Z]{2,63}$/i;
 
 /*REGISTRATION CONTROL*/
@@ -133,6 +136,30 @@ class Signup
                 } else return res.status(400).send({message:"User doesn't exist"});
             });
         } else return res.status(400).send({message:'Need request body'});
+        
+    }
+    
+    signupGroupCommunity(req,res)
+    {
+        if(req.body.name || req.body.inv_token)
+        {
+            if(req.user.id)
+            {
+                Community.getCommunity({$or:[{inv_token:req.body.inv_token},{name:req.body.name}]},(ok,msgCommunity)=>
+                {
+                    if(ok)
+                    {
+                        if((msgCommunity.users).includes(req.user.id))
+                        {
+                            Group.registerGroup();
+                            
+                            
+                        }else res.status(500).send({message: "You need to be part of the community to create a group"});
+                    }else return res.status(400).send(msgCommunity);                   
+                }); 
+                
+            }else return res.status(400).send("Need to authenticate first");
+        }else return res.status(400).send("Need community name or invitation token");
         
     }
 

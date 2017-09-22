@@ -7,7 +7,7 @@ const User = new userModel.userActions();
 
 class API
 {
-    getUser(req,res,cb)
+    getUser(req,res)
     {
         let who =
         {
@@ -16,9 +16,10 @@ class API
             id: req.query.id || null
         }
 
-            User.getUser(who,(ok,data)=>
+            User.getUser({$or:[{email:who.email},{nick:who.nick},{_id:who.id}]},(ok,data)=>
             {
-                if(ok) cb(data);
+                if(ok) return res.status(200).send(data);
+                return res.status(400).send(data);
             });
     }
 
