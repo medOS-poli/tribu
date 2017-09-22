@@ -2,10 +2,12 @@
 
 const userModel = require('../models/user'),
     communityModel = require('../models/community'),
+    groupModel = require('../models/group'),
     hash = require('../services/hash');
 
 const User = new userModel.userActions();
 const Community = new communityModel.communityActions();
+const Group = new groupModel.groupActions();
 
 /*REGISTRATION CONTROL*/
 class Signup
@@ -92,16 +94,40 @@ class Signup
                                         if(ok) return res.status(200).send({message:"User added to community"});
                                         return res.status(200).send({error:obj});
                                         
-                                    });
+                                    });break;
                                 }
-                                case "PUBLIC": return res.status(500).send({error:"Community is PUBLIC"});
-                                case "PRIVATE": return res.status(500).send({error:"Community is PRIVATE"}); 
+                                case "PUBLIC": return res.status(500).send({error:"Community is PUBLIC"}); break;
+                                case "PRIVATE": return res.status(500).send({error:"Community is PRIVATE"}); break; 
                             }
                         }else return res.status(400).send({message:"Community doesn't exist"});
                     });
                 } else return res.status(400).send({message:"User doesn't exist"});
             });
         } else return res.status(400).send({message:'Need request body'});
+        
+    }
+    
+    signupGroupCommunity(req,res)
+    {
+        if(req.body.name || req.body.inv_token)
+        {
+            if(req.user.id)
+            {
+                Community.getCommunity({$or:[{inv_token:req.body.inv_token},{name:req.body.name}]},(ok,msgCommunity)=>
+                {
+                    if(ok)
+                    {
+                        if((msgCommunity.users).includes(req.user.id))
+                        {
+                            Group.registerGroup();
+                            
+                            
+                        }else res.status(500).send({message: "You need to be part of the community to create a group"});
+                    }else return res.status(400).send(msgCommunity);                   
+                }); 
+                
+            }else return res.status(400).send("Need to authenticate first");
+        }else return res.status(400).send("Need community name or invitation token");
         
     }
 

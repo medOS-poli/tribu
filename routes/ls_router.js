@@ -13,6 +13,7 @@ const login = new lsController.Login();
 base.post('/newUser',signup.signupUser);
 base.post('/newCommunity',auth,signup.signupCommunity);
 base.post('/newUserCommunity',signup.signupUserCommunity);
+base.post('/newGroupCommunity',auth,signup.signupGroupCommunity);
 
 base.post('/login',login.loginUser);
 
