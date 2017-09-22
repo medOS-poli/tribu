@@ -21,9 +21,8 @@ const communityObject =
     //users: [{user_id:{type: schema.Types.ObjectId, ref: 'Users'},date:Date.now()}],
     creationDate: {type: Date, default: Date.now()},
     privacy: {type:String, enum:['PRIVATE','PUBLIC','OPEN'], default: 'OPEN', require: true},
-    requests: {
-        users: [{type: schema.Types.ObjectId, ref: 'Users'}]
-    }
+    requests: [{type: schema.Types.ObjectId, ref: 'Users'}]
+    
 };
 
 const communitySchema = new schema(communityObject,{collection : "Communities"});
@@ -92,6 +91,15 @@ class communityActions
             if(!community)  return cb(false, {error: "The community doesn't exists"});
                      
             return cb(true,community);
+        });
+    }
+
+    registerRequest(query,update,cb)
+    {
+        community.update(query,update,(err,updated)=>
+        {
+            if(err) return cb(false, {error:err});
+            return cb(true,{message:"User added"});
         });
     }
 
