@@ -3,7 +3,7 @@
 const userModel = require('../models/user');
 const communityModel = require('../models/community');
 
-const User = new userModel.user();
+const User = new userModel.userActions();
 
 class API
 {
@@ -26,7 +26,8 @@ class API
     {
         User.getAllUsers((ok,data)=>
         {
-            if(ok) res.status(200).send(data);
+            if(ok) return res.status(200).send(data);
+            return res.status(500).send(data);
         });
     }
 }

@@ -34,24 +34,41 @@ class communityActions
 {  
     registerCommunity(newCommunity, cb)
     {
-        console.log("NEWCOMMUNITY>>"+newCommunity);
-        User.getUser({$or:[{email:newCommunity.creator},{nick:newCommunity.creator}]}, (ok,msg)=>
+        this.getCommunity({name:newCommunity.name},(ok,msgCommunity)=>
         {
-            if(ok)
+            if(ok) return cb(false, {error:"Community already exists"});            
+            console.log("NEWCOMMUNITY>>",newCommunity);           
+            
+            User.getUser({_id:newCommunity.creator}, (ok,msg)=>
             {
-                newCommunity.creator= msg._id;
-                newCommunity.user_admin= [msg._id];
-                newCommunity.user_moderator= [msg._id];
-                community.create(newCommunity,(err)=>
+                if(ok)
                 {
-                    if(err) 
-                        return cb(false,{ error:"Couln't register new community: "+err});
-                    else return cb(true,{message: "Community registered! Yay!"});
-                });
-            }else return cb(false,msg);                    
+                    User.getUsersIds(newCommunity.user_admin,(admins)=>
+                    {
+                        newCommunity.user_admin = admins;
+                        newCommunity.user_admin.push(newCommunity.creator);
+                        
+                        User.getUsersIds(newCommunity.user_moderator,(moderators)=>
+                        {
+                            newCommunity.user_moderator = moderators;
+                            newCommunity.user_moderator.push(newCommunity.creator); 
+                            
+                            community.create(newCommunity,(err)=>
+                            {
+                                if(err) 
+                                    return cb(false,{ error:"Couln't register new community: "+err});
+                                else return cb(true,{message: "Community registered! Yay!"});
+                            });
+                            
+                        });                        
+                        
+                    });                    
+                }else return cb(false,msg);                    
+            });        
         });        
     }
 
+        
     generateCommunityToken(data)
     {
         let token = hat();

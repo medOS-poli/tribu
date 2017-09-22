@@ -37,32 +37,40 @@ class Signup
         });
     }  
 
-    signupCommunity(req,res,next)
+    signupCommunity(req,res)
     {
-        console.log(req.body);
-        let newCommunity =
+        console.log("USER TRYING TO CREATE COMMUNITY:",req.user)
+        if(req.user.id)
         {
-            name : req.body.name,
-            title : req.body.title,
-            description : req.body.description || null,
-            logo: req.body.logo || null,
-            creator: req.body.creator,
-            inv_token: Community.generateCommunityToken(req.body.name),
-            user_admin: (req.body.user_admin).split(","),
-            user_moderator: (req.body.user_moderator).split(",") || null,
-            privacy: req.body.privacy
-        };
-        console.log(newCommunity);
-        Community.registerCommunity(newCommunity,(ok,msg)=>
-        {
-            if(ok) return res.status(200).send({info:msg,name: newCommunity.name,inv_token:newCommunity.inv_token});
-            else return res.status(400).send(msg);            
-        });
+            let newCommunity =
+            {
+                name : req.body.name,
+                title : req.body.title,
+                description : req.body.description || null,
+                logo: req.body.logo || null,
+                creator: req.user.id,
+                inv_token: Community.generateCommunityToken(req.body.name),
+                user_admin:req.body.user_admin?(req.body.user_admin).split(","):[],
+                user_moderator: req.body.user_moderator? (req.body.user_moderator).split(",") : [],
+                privacy: req.body.privacy
+            };
+
+            Community.registerCommunity(newCommunity,(ok,msg)=>
+            {
+                 if(ok) return res.status(200).send({info:msg,name: newCommunity.name,inv_token:newCommunity.inv_token});
+               
+                return res.status(400).send(msg);       
+               
+            }); 
+            
+        } else return res.status(500).send({message:"Something wrong happened"});
+        
     }
 
     signupUserCommunity(req,res)
     {
-        if(req.body)
+        
+        if((req.body.nick || req.body.email)&&(req.body.name ||req.body.inv_token))
         {
             User.getUser({$or:[{email:req.body.email},{nick:req.body.nick}]},(ok,msgUser)=>
             {
@@ -72,21 +80,22 @@ class Signup
                     {
                         if(ok)
                         {
+                            console.log(msg)
                             //Verificar el tipo de comunidad
                             switch (msg.privacy)
                             {
                                 //{$set:{'users.$.user_id':msgUser._id}} 
                                 case "OPEN":
                                 {                                   
-                                    Community.registerUser({$or:[{name:msg.name},{inv_token:msg.inv_token}]}, {$set:{"$push":{users:msgUser._id}}},(ok,obj)=>
+                                    Community.registerUser({$or:[{name:msg.name},{inv_token:msg.inv_token}]}, {"$push":{users:msgUser._id}},(ok,obj)=>
                                     {
                                         if(ok) return res.status(200).send({message:"User added to community"});
                                         return res.status(200).send({error:obj});
                                         
-                                    }); break;
+                                    });
                                 }
-                                case "PUBLIC": return res.status(500).send({error:"Community is PUBLIC"}); break;
-                                case "PIRVATE": return res.status(500).send({error:"Community is PRIVATE"}); break;
+                                case "PUBLIC": return res.status(500).send({error:"Community is PUBLIC"});
+                                case "PRIVATE": return res.status(500).send({error:"Community is PRIVATE"}); 
                             }
                         }else return res.status(400).send({message:"Community doesn't exist"});
                     });
@@ -111,7 +120,7 @@ class Login
                 {
                     req.user = msg;
                     let token = hash.createToken(msg);              
-                    return res.status(200).send({info: msg,token: token}); 
+                    return res.status(200).send({info: "Logged"+msg.email,token: token}); 
                 }
                 
                 return res.status(400).send({info: msg}); 
