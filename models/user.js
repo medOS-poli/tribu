@@ -57,7 +57,7 @@ const user = mongoose.model('User',userSchema);
 
 class userActions
 {
-    registerUser(newUser, cb) /*cb=callback*/
+    registerUser(newUser, cb) 
     {        
         newUser.save((err)=>
         {
@@ -71,14 +71,14 @@ class userActions
 
     passUser(who, cb)
     {
-        user.findOne({email: who.email},{password:1},(err,user)=>
+        user.findOne({email: who.email},{password:1, email:1, nick:1},(err,user)=> //=> function
         {            
             if(err) return cb(false,{error: err});
             if(!user)  return cb(false,{error: "User doesn't exists"});
                      
             user.pass(who.password,(ok,message)=>
             {               
-                if(ok) return cb(true,{message: "Logged in: "+who.email});             
+                if(ok) return cb(true,user);             
                                     
                 return cb(false, {error:"Password is incorrect"});               
             });        
@@ -96,14 +96,54 @@ class userActions
             return cb(true,user);
         });
     }
+    
+    getUsers(query,cb)
+    {
+        user.find(query, (err,users)=>
+        {
+            if(err) return cb(false, {error: err});
+            if(!users)  return cb(false, {error: "The user doesn't exists"});
+                     
+            return cb(true,users);
+        });
+    }
 
     getAllUsers(cb)
     {
-        user.find({},(err,data)=>
+        user.find({},(err,users)=>
         {
-            if(err) cb(false);
-            else cb(true,data);
+            if(err) return cb(false, {error:err});
+            if(!user) return cb(false, {error: "There are no users"})
+            return cb(true,users);
         });
+    }
+    
+    getUsersIds(users,cb)
+    {
+        var usersIds = [];
+        if (typeof users !== 'undefined' && users.length > 0) 
+        {
+          
+            var onComplete = function()
+            {
+                cb(usersIds);
+            };
+            var tasksToGo = users.length;        
+            if (tasksToGo === 0) onComplete();
+            else 
+            {
+                users.forEach((user)=>
+                {                   
+                    this.getUser({$or:[{email:user},{nick:user}]}, (ok,msgUser)=>
+                    {
+                        if(ok) usersIds.push(msgUser._id);                       
+                        if (--tasksToGo === 0) onComplete();                    
+                    }); 
+                });
+            }  
+        }else return cb(usersIds)
+        
+        
     }
 }
 

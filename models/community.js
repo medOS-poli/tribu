@@ -17,12 +17,12 @@ const communityObject =
     inv_token : {type: String, unique:true, required:true},
     user_admin: [{type: schema.Types.ObjectId, ref: 'Users', require: true }],
     user_moderator: [{type: schema.Types.ObjectId, ref: 'Users' }],
-    users: [{type: schema.Types.ObjectId, ref: 'Users' }],
+    users: [{type: schema.Types.ObjectId, ref: 'Users'}],
+    //users: [{user_id:{type: schema.Types.ObjectId, ref: 'Users'},date:Date.now()}],
     creationDate: {type: Date, default: Date.now()},
-    privacy: {type:String, enum:['PRIVATE','PUBLIC'], default: 'PUBLIC', require: true},
-    requests: {
-        users: [{type: schema.Types.ObjectId, ref: 'Users'}]
-    }
+    privacy: {type:String, enum:['PRIVATE','PUBLIC','OPEN'], default: 'OPEN', require: true},
+    requests: [{type: schema.Types.ObjectId, ref: 'Users'}]
+    
 };
 
 const communitySchema = new schema(communityObject,{collection : "Communities"});
@@ -33,34 +33,76 @@ class communityActions
 {  
     registerCommunity(newCommunity, cb)
     {
-        console.log("NEWCOMMUNITY>>"+newCommunity);
-        User.getUser({$or:[{email:newCommunity.creator},{nick:newCommunity.creator}]}, (ok,msg)=>
+        this.getCommunity({name:newCommunity.name},(ok,msgCommunity)=>
         {
-            if(ok)
+            if(ok) return cb(false, {error:"Community already exists"});            
+            console.log("NEWCOMMUNITY>>",newCommunity);           
+            
+            User.getUser({_id:newCommunity.creator}, (ok,msg)=>
             {
-                newCommunity.creator= msg._id;
-                newCommunity.user_admin= [msg._id];
-                newCommunity.user_moderator= [msg._id];
-                community.create(newCommunity,(err)=>
+                if(ok)
                 {
-                    if(err) 
-                        return cb(false,{ error:"Couln't register new community: "+err});
-                    else return cb(true,{message: "Community registered! Yay!"});
-                });
-            }else return cb(false,msg);                    
+                    User.getUsersIds(newCommunity.user_admin,(admins)=>
+                    {
+                        newCommunity.user_admin = admins;
+                        newCommunity.user_admin.push(newCommunity.creator);
+                        
+                        User.getUsersIds(newCommunity.user_moderator,(moderators)=>
+                        {
+                            newCommunity.user_moderator = moderators;
+                            newCommunity.user_moderator.push(newCommunity.creator); 
+                            
+                            community.create(newCommunity,(err)=>
+                            {
+                                if(err) 
+                                    return cb(false,{ error:"Couln't register new community: "+err});
+                                else return cb(true,{message: "Community registered! Yay!"});
+                            });
+                            
+                        });                        
+                        
+                    });                    
+                }else return cb(false,msg);                    
+            });        
         });        
     }
 
+        
     generateCommunityToken(data)
     {
         let token = hat();
         return data+token.slice(0,4);
     }
 
-    registerUser(user,cb)
+    registerUser(query,update,cb)
     {
-
+        community.update(query,update,(err,updated)=>
+        {
+            if(err) return cb(false, {error:err});
+            return cb(true,{message:"User added"});
+        });
     }
+
+    getCommunity(query,cb)
+    {
+        community.findOne(query, (err,community)=>
+        {
+            if(err) return cb(false, {error: err});
+            if(!community)  return cb(false, {error: "The community doesn't exists"});
+                     
+            return cb(true,community);
+        });
+    }
+
+    registerRequest(query,update,cb)
+    {
+        community.update(query,update,(err,updated)=>
+        {
+            if(err) return cb(false, {error:err});
+            return cb(true,{message:"User added"});
+        });
+    }
+
 }
 
 module.exports = {communityActions,community};
