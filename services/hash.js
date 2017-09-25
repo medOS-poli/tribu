@@ -6,19 +6,13 @@ const conf = require('../conf');
 
 function createToken(user)
 {
-    
+    console.log("USER>>",user);
     const payload = 
     {
-        id: user._id, //get the new user id
-        nick: user.nick,
-        email: user.email,
+        sub: user._id, //get the new user id
         iat:moment().unix(), //get the creation time of the user
         exp: moment().add(14,'days').unix() //set expiration time to 14 days
-    }   /* 
-    
-    console.log("USER TOKEN>>",user);
-    console.log("USER TOKEN PAYLOAD>>",payload);*/
-    
+    }    
     return jwt.encode(payload, conf.auth.SECRET_TOKEN); //encode using a token
 }
 
@@ -32,6 +26,7 @@ function decodeToken(token)
              console.log("<<TRYING >"+token);
            const payload = jwt.decode(token, conf.auth.SECRET_TOKEN);
            
+            console.log("<<PAYLOAD >"+token);
            
            if(payload.exp <= moment().unix())
             {
@@ -39,7 +34,7 @@ function decodeToken(token)
                 reject({status: 401, message: "Token has expired"});
             }else{
                  console.log("<<RESOLVE >>");
-                resolve(payload);
+                resolve(payload.sub);
             }            
             
         }catch(err)
