@@ -1,18 +1,17 @@
 "use strict";
 
 const mongoose = require('./db'),
-    GroupModel = require('./Group'),
+    communityModel = require('./community'),
     userModel = require('./user');
     
 const schema = mongoose.Schema;
 const User = new userModel.userActions();
-const Group = new GroupModel.GroupActions();
+const Community = new communityModel.communityActions();
 
 const groupObject =
 {
     community: {type: schema.Types.ObjectId, ref: 'Communities' },
-    name : {type:String, required:true, unique:true },
-    title : {type: String, required:true},
+    title : {type:String, required:true, unique:true },
     description : String, 
     user_moderator: {type: schema.Types.ObjectId, ref: 'Communities.users' },
     users: [{type: schema.Types.ObjectId, ref: 'Communities.users'}],
@@ -27,7 +26,11 @@ class groupActions
 {  
     registerGroup(newGroup, cb)
     {
-        
+        newGroup.save(err =>
+        {
+            if(err) return cb(false,{error:"Error saving group"+err});
+            return cb(true,{message:"Group saved"});            
+        });
     }
 }
 
