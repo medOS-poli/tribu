@@ -1,12 +1,12 @@
 "use strict";
 
 const mongoose = require('./db'),
-    communityModel = require('./community'),
+    GroupModel = require('./Group'),
     userModel = require('./user');
     
 const schema = mongoose.Schema;
 const User = new userModel.userActions();
-const Community = new communityModel.communityActions();
+const Group = new GroupModel.GroupActions();
 
 const groupObject =
 {
@@ -19,13 +19,13 @@ const groupObject =
     creationDate: {type: Date, default: Date.now()}    
 };
 
-const groupSchema = new schema(groupObject,{collection : "Communities"});
+const groupSchema = new schema(groupObject,{collection : "Groups"});
 
 const group = mongoose.model('Group',groupSchema);
 
 class groupActions
 {  
-    registerGroup()
+    registerGroup(newGroup, cb)
     {
         
     }

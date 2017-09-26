@@ -151,7 +151,20 @@ class Signup
                     {
                         if((msgCommunity.users).includes(req.user.id))
                         {
-                            Group.registerGroup();
+                            let newGroup = new groupModel.group(
+                            {
+                                community: msgCommunity._id,
+                                name: req.body.name,
+                                title: req.body.title || req.body.name,
+                                description: req.body.description || '',
+                                user_moderator: msgCommunity._id,
+                                user: [req.body.id],
+                                creationDate: Date.now(),
+                            });
+                            Group.registerGroup(newGroup, (ok,msgGroup)=>
+                            {
+                                
+                            });
                             
                             
                         }else res.status(500).send({message: "You need to be part of the community to create a group"});

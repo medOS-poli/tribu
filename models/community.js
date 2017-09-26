@@ -64,7 +64,7 @@ class communityActions
                     });                    
                 }else return cb(false,msg);                    
             });        
-        });        
+        });
     }
 
         
