@@ -9,11 +9,19 @@ const lsController = require('../controllers/ls_controller');
 const signup = new lsController.Signup();
 const login = new lsController.Login();
 
+const update = new lsController.Update();
+const remove = new lsController.Delete();
+
 /*ROUTES*/
-base.post('/newUser',signup.signupUser);
-base.post('/newCommunity',auth,signup.signupCommunity);
-base.post('/newUserCommunity',signup.signupUserCommunity);
-base.post('/newGroupCommunity',auth,signup.signupGroupCommunity);
+base.post('/newUser', signup.signupUser);
+base.post('/newCommunity', auth, signup.signupCommunity);
+base.post('/newUserCommunity', signup.signupUserCommunity);
+base.post('/newGroupCommunity', auth, signup.signupGroupCommunity);
+
+base.post('/updateCommunity', auth, update.updateCommunity);
+base.post('/deleteCommunity', auth, remove.deleteCommunity);
+
+base.post('/updateUser', auth, update.updateUser);
 
 base.post('/login',login.loginUser);
 

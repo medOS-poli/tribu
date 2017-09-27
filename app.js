@@ -20,11 +20,11 @@ let app = express();
 /*APP PROPS*/
 // app.set('views', viewsDir);
 // app.set('view engine', 'pug');
-app.set('port', port);
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:false}));
-app.use( publicDir );
-app.use( routes );
+app
+    .set( 'port', port )
+    .use( bodyParser.json() )
+    .use( bodyParser.urlencoded({ extended:false }) )
+    .use( publicDir )
+    .use( routes );
 
 module.exports = app;
