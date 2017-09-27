@@ -29,6 +29,7 @@ class Signup
             avatar: req.body.avatar || '',
             lastLogin: Date.now()
         });
+        
         if((newUser.email).includes (' ') || 
             (newUser.nick).includes (' ') || 
             (newUser.gender).includes (' ') || 
@@ -40,9 +41,7 @@ class Signup
 
         User.registerUser(newUser,(ok,msg)=>
         {
-            if(ok)
-                return res.status(200).send({info: msg,token: hash.createToken(newUser)}); 
-            
+            if(ok) return res.status(200).send({info: msg,token: hash.createToken(newUser)});             
             return res.status(400).send(msg);            
         });
     }  
@@ -149,33 +148,33 @@ class Signup
                 {
                     if(ok)
                     {
-                        if((msgCommunity.users).includes(req.user.id))
+                        if((msgCommunity.users).indexOf(req.user.id)>-1)
                         {
-                            let newGroup = new groupModel.group(
+                            if(req.body.title)
                             {
-                                community: msgCommunity._id,
-                                name: req.body.name,
-                                title: req.body.title || req.body.name,
-                                description: req.body.description || '',
-                                user_moderator: msgCommunity._id,
-                                user: [req.body.id],
-                                creationDate: Date.now(),
-                            });
-                            Group.registerGroup(newGroup, (ok,msgGroup)=>
-                            {
+                                let newGroup = new groupModel.group(
+                                {
+                                    community: msgCommunity._id,                                   
+                                    title: req.body.title,
+                                    description: req.body.description || '',
+                                    user_moderator: req.user.id,
+                                    users: [req.user.id],
+                                    creationDate: Date.now()
+                                });
                                 
-                            });
-                            
-                            
-                        }else res.status(500).send({message: "You need to be part of the community to create a group"});
+                                Group.registerGroup(newGroup, (ok,msgGroup)=>
+                                {
+                                    if(ok) return res.status(200).send(msgGroup);
+                                    else return res.status(500).send(msgGroup);
+                                });  
+                                
+                            }else return res.status(400).send({error: "Need a title to identify group"});     
+                        }else res.status(500).send({error: "You need to be part of the community to create a group"});
                     }else return res.status(400).send(msgCommunity);                   
-                }); 
-                
+                });               
             }else return res.status(400).send("Need to authenticate first");
-        }else return res.status(400).send("Need community name or invitation token");
-        
+        }else return res.status(400).send("Need a community name or invitation token");        
     }
-
 }
 
 class Login
@@ -192,10 +191,8 @@ class Login
                     req.user = msg;
                     let token = hash.createToken(msg);              
                     return res.status(200).send({info: "Logged"+msg.email,token: token}); 
-                }
-                
-                return res.status(400).send({info: msg}); 
-                
+                }                
+                return res.status(404).send({info: msg});                
             }); 
         }else return res.status(400).send({info: {error:"need to provide a request body"}});  
     }
