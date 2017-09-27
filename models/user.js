@@ -53,68 +53,63 @@ var hashPasswordSave = function(next)
 
 userSchema.pre('save',hashPasswordSave);
 
-const user = mongoose.model('User',userSchema);
+const user = mongoose.model('User', userSchema);
 
 class userActions
 {
     registerUser(newUser, cb) 
     {        
-        newUser.save((err)=>
+        newUser.save((err) =>
         {
-            if(err) 
-                return cb(false,{error: "Couldn't add user: "+err});
-            else 
-                return cb(true,{message: "User added"});
-            
+            if(err) return cb(false, {error: "Couldn't add user: " + err});
+            return cb(true, {message: "User added"});
         });
     }
 
     passUser(who, cb)
     {
-        user.findOne({email: who.email},{password:1, email:1, nick:1},(err,user)=> //=> function
+        user.findOne({$or:[{email: who.email},{nick: who.nick}]}, {password:1, email:1, nick:1}, (err,user) => //=> function
         {            
             if(err) return cb(false,{error: err});
-            if(!user)  return cb(false,{error: "User doesn't exists"});
+            if(!user)  return cb(false, {error: "User doesn't exists"});
                      
-            user.pass(who.password,(ok,message)=>
+            user.pass(who.password, (ok,message) =>
             {               
-                if(ok) return cb(true,user);             
-                                    
+                if(ok) return cb(true, user);                                  
                 return cb(false, {error:"Password is incorrect"});               
             });        
             
         });
     }
     
-    getUser(query,cb)
+    getUser(query, cb)
     {
-        user.findOne(query, (err,user)=>
+        user.findOne(query, (err, user) =>
         {
             if(err) return cb(false, {error: err});
-            if(!user)  return cb(false, {error: "The user doesn't exists"});
-                     
-            return cb(true,user);
+            if(!user) return cb(false, {error: "The user doesn't exists"});        
+            return cb(true, user);
         });
     }
     
-    getUsers(query,cb)
+    getUsers(query, cb)
     {
-        user.find(query, (err,users)=>
+        user.find(query, (err, users) =>
         {
             if(err) return cb(false, {error: err});
             if(!users)  return cb(false, {error: "The user doesn't exists"});
                      
-            return cb(true,users);
+            return cb(true, users); 
         });
     }
 
     getAllUsers(cb)
     {
-        user.find({},(err,users)=>
+        user.find({},(err, users) =>
         {
-            if(err) return cb(false, {error:err});
+            if(err) return cb(false, {error: err});
             if(!user) return cb(false, {error: "There are no users"})
-            return cb(true,users);
+            return cb(true, users);
         });
     }
     
@@ -141,9 +136,16 @@ class userActions
                     }); 
                 });
             }  
-        }else return cb(usersIds)
-        
-        
+        } else return cb(usersIds)  
+    }
+
+    updateUser(query, update, cb)
+    {
+        user.update(query, update, (err, update) => 
+        {
+            if(err) return cb(false, {error:err});
+            return cb(true,{message:"User updated"});
+        })
     }
 }
 

@@ -7,7 +7,7 @@ const User = new userModel.userActions();
 
 class API
 {
-    getUser(req,res)
+    getUser(req, res)
     {
         let who =
         {
@@ -16,16 +16,16 @@ class API
             id: req.query.id || null
         }
 
-            User.getUser({$or:[{email:who.email},{nick:who.nick},{_id:who.id}]},(ok,data)=>
-            {
-                if(ok) return res.status(200).send(data);
-                return res.status(400).send(data);
-            });
+        User.getUser({$or:[{email: who.email}, {nick: who.nick}, {_id: who.id}]}, (ok, data) =>
+        {
+            if(ok) return res.status(200).send(data);
+            return res.status(400).send(data); 
+        });
     }
 
-    getUsers(req,res,next)
+    getUsers(req, res, next)
     {
-        User.getAllUsers((ok,data)=>
+        User.getAllUsers((ok, data) =>  
         {
             if(ok) return res.status(200).send(data);
             return res.status(500).send(data);
