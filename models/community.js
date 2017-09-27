@@ -51,7 +51,7 @@ class communityActions
                         {
                             newCommunity.user_moderator = moderators;
                             newCommunity.user_moderator.push(newCommunity.creator); 
-                            
+                            newCommunity.users.push(newCommunity.creator);
                             community.create(newCommunity,(err)=>
                             {
                                 if(err) 
@@ -64,7 +64,7 @@ class communityActions
                     });                    
                 }else return cb(false,msg);                    
             });        
-        });        
+        });
     }
 
         

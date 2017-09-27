@@ -29,6 +29,7 @@ class Signup
             avatar: req.body.avatar || '',
             lastLogin: Date.now()
         });
+        
         if((newUser.email).includes (' ') || 
             (newUser.nick).includes (' ') || 
             (newUser.gender).includes (' ') || 
@@ -40,9 +41,7 @@ class Signup
 
         User.registerUser(newUser,(ok,msg)=>
         {
-            if(ok)
-                return res.status(200).send({info: msg,token: hash.createToken(newUser)}); 
-            
+            if(ok) return res.status(200).send({info: msg,token: hash.createToken(newUser)});             
             return res.status(400).send(msg);            
         });
     }  
@@ -56,15 +55,18 @@ class Signup
             {
                 name : req.body.name,
                 title : req.body.title,
-                description : req.body.description || null,
-                logo: req.body.logo || null,
+                description : req.body.description || '',
+                logo: req.body.logo || '',
                 creator: req.user.id,
                 inv_token: Community.generateCommunityToken(req.body.name),
                 user_admin:req.body.user_admin?(req.body.user_admin).split(","):[],
                 user_moderator: req.body.user_moderator? (req.body.user_moderator).split(",") : [],
                 privacy: req.body.privacy
             };
-            if(newCommunity.name.includes (' ') || newCommunity.logo.includes (' ')) return res.status(400).send("The name can't have spaces");
+            
+            if((newCommunity.name).includes (' ') || (newCommunity.logo).includes (' '))
+                return res.status(400).send("The name can't have spaces");
+            
             Community.registerCommunity(newCommunity,(ok,msg)=>
             {
                  if(ok) return res.status(200).send({info:msg,name: newCommunity.name,inv_token:newCommunity.inv_token});
@@ -85,58 +87,55 @@ class Signup
             {
                 if(ok)
                 {
-                    Community.getCommunity({$or:[{inv_token:req.body.inv_token},{name:req.body.name}]},(ok,msgCommuninty)=>
+                    Community.getCommunity({$or:[{inv_token:req.body.inv_token},{name:req.body.name}]},(ok,msgCommunity)=>
                     {
                         if(ok)
                         {
-                            console.log(msgCommuninty)
-                            //Verificar el tipo de comunidad
-                            switch (msgCommuninty.privacy)
-                            {
-                                //{$set:{'users.$.user_id':msgUser._id}} 
-                                case "OPEN":
-                                {                                   
-                                    Community.registerUser({$or:[{name:msgCommuninty.name},{inv_token:msgCommuninty.inv_token}]}, {"$push":{users:msgUser._id}},(ok,obj)=>
-                                    {
-                                        if(ok) return res.status(200).send({message:"User added to community"});
-                                        return res.status(500).send({error:obj});
-                                        
-                                    });
-                                }break;
-                                case "PUBLIC":
+                            if((msgCommunity.users).indexOf(msgUser._id) < 0)
+                            {                                
+                                switch (msgCommunity.privacy)
                                 {
-                                    Community.registerRequest({$or:[{name:msgCommuninty.name},{inv_token:msgCommuninty.inv_token}]}, {"$push":{requests:msgUser._id}},(ok,obj)=>
+                                    //{$set:{'users.$.user_id':msgUser._id}} 
+                                    case "OPEN":
+                                    {                                   
+                                        Community.registerUser({$or:[{name:msgCommunity.name},{inv_token:msgCommunity.inv_token}]}, {"$push":{users:msgUser._id}},(ok,obj)=>
+                                        {
+                                            if(ok) return res.status(200).send({message:"User added to community"});
+                                            return res.status(500).send({error:obj});
+                                            
+                                        });
+                                    }break;
+                                    
+                                    case "PUBLIC":
                                     {
+                                        Community.registerRequest({$or:[{name:msgCommunity.name},{inv_token:msgCommunity.inv_token}]}, {"$push":{requests:msgUser._id}},(ok,obj)=>
+                                        {
 
-                                            if(ok) return res.status(200).send({message:"Request sent"});
-                                            return res.status(500).send({error:obj});
-                                    });
-
-
-                                }break;
-                                case "PRIVATE": 
-                                {   
-                                   if(req.body.inv_token && req.body.inv_token===msgCommuninty.inv_token) 
-                                   {
-                                      Community.registerRequest({$or:[{name:msgCommuninty.name},{inv_token:msgCommuninty.inv_token}]}, {"$push":{requests:msgUser._id}},(ok,obj)=>
-                                      {
-                                        
-                                            if(ok) return res.status(200).send({message:"Request sent"});
-                                            return res.status(500).send({error:obj});
-                                        
-                                      });
-
-                                   } else res.status(400).send({message:"Need an invitation token"})
+                                                if(ok) return res.status(200).send({message:"Request sent"});
+                                                return res.status(500).send({error:obj});
+                                        });
+                                    }break;
+                                    
+                                    case "PRIVATE": 
+                                    {                                    
+                                        if(req.body.inv_token && req.body.inv_token===msgCommunity.inv_token) 
+                                        {
+                                                Community.registerRequest({$or:[{name:msgCommunity.name},{inv_token:msgCommunity.inv_token}]}, {"$push":{requests:msgUser._id}},(ok,obj)=>
+                                                {
+                                                
+                                                    if(ok) return res.status(200).send({message:"Request sent"});
+                                                    return res.status(500).send({error:obj});
+                                                
+                                                });
+                                        } else res.status(400).send({message:"Need an invitation token"})
+                                    }break;
                                 }
-                                
-                                ;break;
-                            }
+                            }else return res.status(400).send({message:"User is already registered"});
                         }else return res.status(400).send({message:"Community doesn't exist"});
                     });
                 } else return res.status(400).send({message:"User doesn't exist"});
             });
-        } else return res.status(400).send({message:'Need request body'});
-        
+        } else return res.status(400).send({message:'Need request body'});        
     }
     
     signupGroupCommunity(req,res)
@@ -149,20 +148,33 @@ class Signup
                 {
                     if(ok)
                     {
-                        if((msgCommunity.users).includes(req.user.id))
+                        if((msgCommunity.users).indexOf(req.user.id)>-1)
                         {
-                            Group.registerGroup();
-                            
-                            
-                        }else res.status(500).send({message: "You need to be part of the community to create a group"});
+                            if(req.body.title)
+                            {
+                                let newGroup = new groupModel.group(
+                                {
+                                    community: msgCommunity._id,                                   
+                                    title: req.body.title,
+                                    description: req.body.description || '',
+                                    user_moderator: req.user.id,
+                                    users: [req.user.id],
+                                    creationDate: Date.now()
+                                });
+                                
+                                Group.registerGroup(newGroup, (ok,msgGroup)=>
+                                {
+                                    if(ok) return res.status(200).send(msgGroup);
+                                    else return res.status(500).send(msgGroup);
+                                });  
+                                
+                            }else return res.status(400).send({error: "Need a title to identify group"});     
+                        }else res.status(500).send({error: "You need to be part of the community to create a group"});
                     }else return res.status(400).send(msgCommunity);                   
-                }); 
-                
+                });               
             }else return res.status(400).send("Need to authenticate first");
-        }else return res.status(400).send("Need community name or invitation token");
-        
+        }else return res.status(400).send("Need a community name or invitation token");        
     }
-
 }
 
 class Login
@@ -179,10 +191,8 @@ class Login
                     req.user = msg;
                     let token = hash.createToken(msg);              
                     return res.status(200).send({info: "Logged"+msg.email,token: token}); 
-                }
-                
-                return res.status(400).send({info: msg}); 
-                
+                }                
+                return res.status(404).send({info: msg});                
             }); 
         }else return res.status(400).send({info: {error:"need to provide a request body"}});  
     }
