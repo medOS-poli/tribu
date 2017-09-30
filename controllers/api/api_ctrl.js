@@ -1,7 +1,7 @@
 "use strict";
 
-const userModel = require('../models/user');
-const communityModel = require('../models/community');
+const userModel = require('../../models/user');
+const communityModel = require('../../models/community');
 
 const User = new userModel.userActions();
 
