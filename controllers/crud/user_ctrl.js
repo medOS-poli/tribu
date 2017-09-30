@@ -36,7 +36,7 @@ class UserCtrl
         
         User.registerUser(newUser, (ok, msg) =>
         {
-            if(ok) return res.status(200).send({info: msg, token: hash.createToken(newUser)});
+            if(ok) return res.status(200).send({message:msg.message, token: hash.createToken(newUser)});
             return res.status(400).send(msg);
         });
     }

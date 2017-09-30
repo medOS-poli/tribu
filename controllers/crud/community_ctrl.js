@@ -14,7 +14,7 @@ class CommunityCtrl
             let newCommunity =
             {
                 name : req.body.name,
-                title : req.body.title,
+                title : req.body.title || req.body.name,
                 description : req.body.description || '',
                 logo: req.body.logo || '',
                 creator: req.user.id,
