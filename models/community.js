@@ -20,8 +20,7 @@ const communityObject =
     users: [{type: schema.Types.ObjectId, ref: 'Users'}],
     creationDate: {type: Date, default: Date.now()},
     privacy: {type:String, enum:['PRIVATE','PUBLIC','OPEN'], default: 'OPEN', require: true},
-    requests: [{type: schema.Types.ObjectId, ref: 'Users'}],
-    secret: {type: String, require: true, unique:true}
+    requests: [{type: schema.Types.ObjectId, ref: 'Users'}]
     
 };
 
@@ -42,7 +41,7 @@ class CommunityActions
             {
                 if(ok)
                 {
-                    User.getUsersIds(newCommunity.user_admin,(admins)=>
+                    user.getUsersIds(newCommunity.user_admin,(admins)=>
                     {
                         newCommunity.user_admin = admins;
                         newCommunity.user_admin.push(newCommunity.creator);
@@ -72,16 +71,6 @@ class CommunityActions
         let token = hat();
         return data+token.slice(0,4);
     }
-    
-    generateCommunitySecret(data)
-    {
-        let abc = "abcdefghijklmnopqrstuvwxyz";        
-        var token = hat();      
-        for (l in data) 
-           token+= abc.indexOf(data[l])   
-        
-        return token;
-    }
 
     registerUser(query,update,cb)
     {
@@ -101,15 +90,6 @@ class CommunityActions
                      
             return cb(true, community);
         });
-    }
-    
-    getCommunities(query, cb)
-    {
-        community.find(query, (err, communities) =>
-        {
-            if(err) return cb(false, {error: err});
-            if(!communities) return cb(false, {message: "Not communities found"})
-        });        
     }
 
     registerRequest(query,update,cb)
@@ -136,6 +116,17 @@ class CommunityActions
         {
             (err) ? cb(false, { error: err} ) : cb(true, { message: "Community deleted" });
         })
+    }
+
+    getUsers(query, cb)
+    {
+        community.aggregate([{$match: query},{$lookup: {from: "Users", localField: "users", foreignField: "_id", as:"communityUsers"}}],(err, communityUsers) =>
+        {
+            if (err) return cb(false, { error: err })
+            if (!communityUsers) return cb(flase, {message: "There are not users"})
+            return cb(true,communityUsers)
+        });
+
     }
 }
 
