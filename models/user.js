@@ -55,7 +55,7 @@ userSchema.pre('save',hashPasswordSave);
 
 const user = mongoose.model('User', userSchema);
 
-class userActions
+class UserActions
 {
     registerUser(newUser, cb) 
     {        
@@ -149,4 +149,4 @@ class userActions
     }
 }
 
-module.exports = {userActions,user};
+module.exports = {UserActions,user};

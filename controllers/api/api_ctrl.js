@@ -3,7 +3,7 @@
 const userModel = require('../../models/user');
 const communityModel = require('../../models/community');
 
-const User = new userModel.userActions();
+const user = new userModel.UserActions();
 
 class API
 {
@@ -16,7 +16,7 @@ class API
             id: req.query.id || null
         }
 
-        User.getUser({$or:[{email: who.email}, {nick: who.nick}, {_id: who.id}]}, (ok, data) =>
+        u.getUser({$or:[{email: who.email}, {nick: who.nick}, {_id: who.id}]}, (ok, data) =>
         {
             if(ok) return res.status(200).send(data);
             return res.status(400).send(data); 
@@ -25,7 +25,7 @@ class API
 
     getUsers(req, res, next)
     {
-        User.getAllUsers((ok, data) =>  
+        user.getAllUsers((ok, data) =>  
         {
             if(ok) return res.status(200).send(data);
             return res.status(500).send(data);

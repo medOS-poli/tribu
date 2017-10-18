@@ -5,8 +5,8 @@ const mongoose = require('./db'),
     userModel = require('./user');
     
 const schema = mongoose.Schema;
-const User = new userModel.userActions();
-const Community = new communityModel.communityActions();
+const user = new userModel.UserActions();
+const community = new communityModel.CommunityActions();
 
 const groupObject =
 {
@@ -23,7 +23,7 @@ const groupSchema = new schema(groupObject,{collection : "Communities"});
 
 const group = mongoose.model('Group',groupSchema);
 
-class groupActions
+class GroupActions
 {  
     registerGroup()
     {
@@ -31,4 +31,4 @@ class groupActions
     }
 }
 
-module.exports = {groupActions,group};
+module.exports = {GroupActions,group};

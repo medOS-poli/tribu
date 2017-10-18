@@ -5,7 +5,7 @@ const mongoose = require('./db'),
       userModel = require('./user');
     
 const schema = mongoose.Schema;
-const User = new userModel.userActions();
+const user = new userModel.UserActions();
 
 const communityObject =
 {
@@ -28,7 +28,7 @@ const communitySchema = new schema(communityObject,{collection : "Communities"})
 
 const community = mongoose.model('Community',communitySchema);
 
-class communityActions
+class CommunityActions
 {  
     registerCommunity(newCommunity, cb)
     {
@@ -37,7 +37,7 @@ class communityActions
             if(ok) return cb(false, {error:"Community already exists"});            
             console.log("NEWCOMMUNITY>>",newCommunity);           
             
-            User.getUser({_id:newCommunity.creator}, (ok,msg)=>
+            user.getUser({_id:newCommunity.creator}, (ok,msg)=>
             {
                 if(ok)
                 {
@@ -46,7 +46,7 @@ class communityActions
                         newCommunity.user_admin = admins;
                         newCommunity.user_admin.push(newCommunity.creator);
                         
-                        User.getUsersIds(newCommunity.user_moderator,(moderators)=>
+                        user.getUsersIds(newCommunity.user_moderator,(moderators)=>
                         {
                             newCommunity.user_moderator = moderators;
                             newCommunity.user_moderator.push(newCommunity.creator); 
@@ -119,4 +119,4 @@ class communityActions
     }
 }
 
-module.exports = {communityActions,community};
+module.exports = {CommunityActions,community};

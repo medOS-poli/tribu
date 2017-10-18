@@ -3,7 +3,7 @@
 const communityModel = require('../../models/community'),
     groupModel = require('../../models/group');
 
-const Community = new communityModel.communityActions();
+const community = new communityModel.CommunityActions();
 
 class CommunityCtrl
 {
@@ -24,7 +24,7 @@ class CommunityCtrl
                 privacy: req.body.privacy
             };
             if(newCommunity.name.includes (' ') || newCommunity.logo.includes (' ')) return res.status(400).send("The name can't have spaces");
-            Community.registerCommunity(newCommunity,(ok,msg)=>
+            community.registerCommunity(newCommunity,(ok,msg)=>
             {
                 if(ok) return res.status(200).send({info:msg,name: newCommunity.name,inv_token:newCommunity.inv_token});
 
@@ -35,7 +35,7 @@ class CommunityCtrl
 
     updateCommunity(req, res)
     {
-        Community.getCommunity({inv_token: req.body.inv_token}, (ok, msgCommunity) =>
+        community.getCommunity({inv_token: req.body.inv_token}, (ok, msgCommunity) =>
         {
             if(ok)
             {
@@ -70,13 +70,10 @@ class CommunityCtrl
 
     deleteCommunity(req, res, next)
     {
-        Community.getCommunity({inv_token: req.body.inv_token}, (ok, msgCommunity) =>
+        community.getCommunity({inv_token: req.body.inv_token}, (ok, msgCommunity) =>
         {
             if(ok)
-            {
-                console.log('Nombre: ', msgCommunity.name)
-                console.log('Admin: ', msgCommunity.user_admin)
-
+            { 
                 if((req.user.id).includes(msgCommunity.creator))
                 {
                     let name = req.body.name;
@@ -86,8 +83,7 @@ class CommunityCtrl
                         if(ok) return res.status(200).send({message:"community deleted"});
                         return res.status(500).send({error:obj});
                     })
-
-                    console.log('eres admi');
+                    
                 } else res.status(500).send({message: "You need admin of the community to delete a group"});
             }
         });

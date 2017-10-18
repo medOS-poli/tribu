@@ -3,8 +3,8 @@
 const communityModel = require('../../models/community'),
     groupModel = require('../../models/group');
 
-const Group = new groupModel.groupActions();
-const Community = new communityModel.communityActions();
+const group = new groupModel.GroupActions();
+const community = new communityModel.CommunityActions();
 
 class GroupCtrl
 {
@@ -14,15 +14,14 @@ class GroupCtrl
         {
             if(req.user.id)
             {
-                Community.getCommunity({$or:[{inv_token:req.body.inv_token},{name:req.body.name}]},(ok,msgCommunity)=>
+                community.getCommunity({$or:[{inv_token:req.body.inv_token},{name:req.body.name}]},(ok,msgCommunity)=>
                 {
                     if(ok)
                     {
-                        if((msgCommunity.users).includes(req.user.id))
-                        {
-                            Group.registerGroup();
-
-                        }else res.status(500).send({message: "You need to be part of the community to create a group"});
+                        if((msgCommunity.users).includes(req.user.id))                        
+                            group.registerGroup();
+                        else 
+                            res.status(500).send({message: "You need to be part of the community to create a group"});
                     }else return res.status(400).send(msgCommunity);
                 });
 

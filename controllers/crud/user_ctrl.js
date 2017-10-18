@@ -4,8 +4,8 @@ const userModel = require('../../models/user'),
     communityModel = require('../../models/community'),
     hash = require('../../services/hash');
 
-const User = new userModel.userActions();
-const Community = new communityModel.communityActions();
+const user = new userModel.UserActions();
+const community = new communityModel.CommunityActions();
 
 const emailRegex = /^[-\w.%+]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,125}[A-Z]{2,63}$/i
 
@@ -34,7 +34,7 @@ class UserCtrl
             !emailRegex.test(newUser.email)
         ) return res.status(400).send({error:"Formating error"});
         
-        User.registerUser(newUser, (ok, msg) =>
+        user.registerUser(newUser, (ok, msg) =>
         {
             if(ok) return res.status(200).send({message:msg.message, token: hash.createToken(newUser)});
             return res.status(400).send(msg);
@@ -45,11 +45,11 @@ class UserCtrl
     {
         if((req.body.nick || req.body.email) && (req.body.name || req.body.inv_token))
         {
-            User.getUser({$or:[{email:req.body.email},{nick:req.body.nick}]}, (ok,msgUser)=>
+            user.getUser({$or:[{email:req.body.email},{nick:req.body.nick}]}, (ok,msgUser)=>
             {
                 if(ok)
                 {
-                    Community.getCommunity({$or:[{inv_token:req.body.inv_token},{name:req.body.name}]},(ok,msgCommunity)=>
+                    community.getCommunity({$or:[{inv_token:req.body.inv_token},{name:req.body.name}]},(ok,msgCommunity)=>
                     {
                         if(ok)
                         { 
@@ -60,7 +60,7 @@ class UserCtrl
                                     //{$set:{'users.$.user_id':msgUser._id}}
                                     case "OPEN":
                                     {
-                                        Community.registerUser({$or:[{name:msgCommunity.name},{inv_token:msgCommunity.inv_token}]}, {"$addToSet":{users:msgUser._id}},(ok,obj)=>
+                                        community.registerUser({$or:[{name:msgCommunity.name},{inv_token:msgCommunity.inv_token}]}, {"$addToSet":{users:msgUser._id}},(ok,obj)=>
                                         {
                                             if(ok) return res.status(200).send({message:"User added to community"});
                                             return res.status(500).send({error:obj});
@@ -69,7 +69,7 @@ class UserCtrl
                                     
                                     case "PUBLIC":
                                     {
-                                        Community.registerRequest({$or:[{name:msgCommunity.name},{inv_token:msgCommunity.inv_token}]}, {"$addToSet":{requests:msgUser._id}},(ok,obj)=>
+                                        community.registerRequest({$or:[{name:msgCommunity.name},{inv_token:msgCommunity.inv_token}]}, {"$addToSet":{requests:msgUser._id}},(ok,obj)=>
                                         {
                                                 if(ok) return res.status(200).send({message:"Request sent"});
                                                 return res.status(500).send({error:obj});
@@ -80,7 +80,7 @@ class UserCtrl
                                     {
                                     if(req.body.inv_token && req.body.inv_token===msgCommunity.inv_token)
                                     {
-                                        Community.registerRequest({$or:[{name:msgCommunity.name},{inv_token:msgCommunity.inv_token}]}, {"$addToSet":{requests:msgUser._id}},(ok,obj)=>
+                                        community.registerRequest({$or:[{name:msgCommunity.name},{inv_token:msgCommunity.inv_token}]}, {"$addToSet":{requests:msgUser._id}},(ok,obj)=>
                                         {
                                             if(ok) return res.status(200).send({message:"Request sent"});
                                             return res.status(500).send({error:obj});
@@ -102,7 +102,7 @@ class UserCtrl
     {
         if((req.body.nick || req.body.email) && req.body.password)
         {
-            User.passUser(req.body, (ok,msg) =>
+            user.passUser(req.body, (ok,msg) =>
             {
                 if(ok)
                 {
@@ -117,7 +117,7 @@ class UserCtrl
     
     updateUser(req, res)
     {        
-        User.getUser({email: req.body.email}, (ok, msgUser) =>
+        user.getUser({email: req.body.email}, (ok, msgUser) =>
         {
             if(ok)
             {
