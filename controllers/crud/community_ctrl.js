@@ -9,7 +9,7 @@ class CommunityCtrl
 {
     signupCommunity(req,res)
     {
-        if(req.user.id)
+        if(req.user.id && req.body.name)
         {
             let newCommunity =
             {
@@ -18,15 +18,17 @@ class CommunityCtrl
                 description : req.body.description || '',
                 logo: req.body.logo || '',
                 creator: req.user.id,
-                inv_token: Community.generateCommunityToken(req.body.name),
+                inv_token: community.generateCommunityToken(req.body.name),
                 user_admin:req.body.user_admin?(req.body.user_admin).split(","):[],
                 user_moderator: req.body.user_moderator? (req.body.user_moderator).split(",") : [],
-                privacy: req.body.privacy
+                privacy: req.body.privacy,
+                secret: community.generateCommunitySecret(req.body.name)
             };
+            
             if(newCommunity.name.includes (' ') || newCommunity.logo.includes (' ')) return res.status(400).send("The name can't have spaces");
             community.registerCommunity(newCommunity,(ok,msg)=>
             {
-                if(ok) return res.status(200).send({info:msg,name: newCommunity.name,inv_token:newCommunity.inv_token});
+                if(ok) return res.status(200).send({message: { name: newCommunity.name, inv_token:newCommunity.inv_token, secret: newCommunity.secret } });
 
                 return res.status(400).send(msg);
             });

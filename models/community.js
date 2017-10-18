@@ -20,7 +20,8 @@ const communityObject =
     users: [{type: schema.Types.ObjectId, ref: 'Users'}],
     creationDate: {type: Date, default: Date.now()},
     privacy: {type:String, enum:['PRIVATE','PUBLIC','OPEN'], default: 'OPEN', require: true},
-    requests: [{type: schema.Types.ObjectId, ref: 'Users'}]
+    requests: [{type: schema.Types.ObjectId, ref: 'Users'}],
+    secret: {type: String, require: true, unique:true}
     
 };
 
@@ -71,6 +72,16 @@ class CommunityActions
         let token = hat();
         return data+token.slice(0,4);
     }
+    
+    generateCommunitySecret(data)
+    {
+        let abc = "abcdefghijklmnopqrstuvwxyz";        
+        var token = hat();      
+        for (l in data) 
+           token+= abc.indexOf(data[l])   
+        
+        return token;
+    }
 
     registerUser(query,update,cb)
     {
@@ -90,6 +101,15 @@ class CommunityActions
                      
             return cb(true, community);
         });
+    }
+    
+    getCommunities(query, cb)
+    {
+        community.find(query, (err, communities) =>
+        {
+            if(err) return cb(false, {error: err});
+            if(!communities) return cb(false, {message: "Not communities found"})
+        });        
     }
 
     registerRequest(query,update,cb)
