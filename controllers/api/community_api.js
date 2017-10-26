@@ -10,13 +10,8 @@ const community = new communityModel.CommunityActions()
 
 class CommunityAPI
 {
-    findCommunity(req,res)
+    getUsersCommunity(req, res)
     {
-        if(req.query.name || req.query.inv_token || req.query.title)
-        {
-            
-            community.getCommunities()
-            
-        }else return res.status(400).send(error: "Incomplete request");
+        
     }
 }
