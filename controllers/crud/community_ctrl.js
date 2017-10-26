@@ -1,7 +1,9 @@
 "use strict";
 
 const communityModel = require('../../models/community'),
-    groupModel = require('../../models/group');
+    groupModel = require('../../models/group'),
+    hash = require('../../services/hash');
+
 
 const community = new communityModel.CommunityActions();
 
@@ -11,7 +13,7 @@ class CommunityCtrl
     {
         if(req.user.id && req.body.name)
         {
-            let newCommunity =
+            var newCommunity =
             {
                 name : req.body.name,
                 title : req.body.title || req.body.name,
@@ -22,8 +24,10 @@ class CommunityCtrl
                 user_admin:req.body.user_admin?(req.body.user_admin).split(","):[],
                 user_moderator: req.body.user_moderator? (req.body.user_moderator).split(",") : [],
                 privacy: req.body.privacy,
-                secret: community.generateCommunitySecret(req.body.name)
+               
             };
+            
+            newCommunity.secret = hash.createCommunityToken(newCommunity);
             
             if(newCommunity.name.includes (' ') || newCommunity.logo.includes (' ')) return res.status(400).send("The name can't have spaces");
             community.registerCommunity(newCommunity,(ok,msg)=>

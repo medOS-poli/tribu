@@ -66,6 +66,8 @@ class CommunityActions
         });        
     }
         
+        
+        
     generateCommunityToken(data)
     {
         let token = hat();
