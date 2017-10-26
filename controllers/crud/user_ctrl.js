@@ -60,7 +60,7 @@ class UserCtrl
                                     //{$set:{'users.$.user_id':msgUser._id}}
                                     case "OPEN":
                                     {
-                                        Community.registerUser({$or:[{name:msgCommunity.name},{inv_token:msgCommunity.inv_token}]}, {"$addToSet":{users:msgUser._id}},(ok,obj)=>
+                                        Community.registerUser({$or:[{name:msgCommunity.name},{inv_token:msgCommunity.inv_token}]}, {"$addToSet":{users:{id: msgUser._id, type: 'USER'}}},(ok,obj)=>
                                         {
                                             if(ok) return res.status(200).send({message:"User added to community"});
                                             return res.status(500).send({error:obj});

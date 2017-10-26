@@ -8,14 +8,13 @@ function isAuth( req, res, next)
     if(req.headers.authorization)
         token = req.headers.authorization.split(" ")[0];      
     else
-        return res.status(500).send({error: "You need to Login first"}); 
+        return res.status(400).send({error: "You need to Login first"}); 
         
     hash.decodeToken(token).then(response =>
     {
-//         console.log(response._doc);
+        console.log(response.nick);
         req.auth = response;
-        next();
-        
+        next();        
     })
     .catch(response => 
     {

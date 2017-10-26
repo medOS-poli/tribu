@@ -3,10 +3,10 @@ const base = require('./base'),
 auth = require('../middlewares/auth');
 
 /*CONTROLLERS DEFS*/
-const apiController = require('../controllers/controller').ApiCtrl;
+const ctrl = require('../controllers/controller');
 
 /*OBJS*/
-const communityAPI = new apiController.CommunityAPI.CommunityAPI();
+const communityAPI = new ctrl.CommunityAPI();
 
 /*ROUTES*/
 base.get('/API/community/getusers/:type?:group?', auth, communityAPI.getUsersCommunity);
