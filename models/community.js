@@ -20,8 +20,7 @@ const communityObject =
     users: [ {_id:false,  id: {type: schema.Types.ObjectId, ref: 'Users'}, type: {type:String, required:true, enum:['ADMIN','MODER','USER'], default:'USER'} }],
     creationDate: {type: Date, default: Date.now()},
     privacy: {type:String, enum:['PRIVATE','PUBLIC','OPEN'], default: 'OPEN', require: true},
-    requests: [{type: schema.Types.ObjectId, ref: 'Users'}],
-    secret: {type: String, require: true, unique:true}
+    requests: [{type: schema.Types.ObjectId, ref: 'Users'}]
     
 };
 
@@ -78,8 +77,7 @@ class CommunityActions
         let token = hat();
         return data+token.slice(0,4);
     }
-    
-    
+
     registerUser(query,update,cb)
     {
         community.update(query,update,(err,updated)=>
@@ -98,15 +96,6 @@ class CommunityActions
                      
             return cb(true, community);
         });
-    }
-    
-    getCommunities(query, cb)
-    {
-        community.find(query, (err, communities) =>
-        {
-            if(err) return cb(false, {error: err});
-            if(!communities) return cb(false, {message: "Not communities found"})
-        });        
     }
 
     registerRequest(query,update,cb)
@@ -133,6 +122,17 @@ class CommunityActions
         {
             (err) ? cb(false, { error: err} ) : cb(true, { message: "Community deleted" });
         })
+    }
+
+    getUsers(query, cb)
+    {
+        community.aggregate([{$match: query},{$lookup: {from: "Users", localField: "users", foreignField: "_id", as:"communityUsers"}}],(err, communityUsers) =>
+        {
+            if (err) return cb(false, { error: err })
+            if (!communityUsers) return cb(flase, {message: "There are not users"})
+            return cb(true,communityUsers)
+        });
+
     }
 }
 
