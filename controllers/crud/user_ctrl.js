@@ -36,7 +36,7 @@ class UserCtrl
         
         user.registerUser(newUser, (ok, msg) =>
         {
-            if(ok) return res.status(200).send({message:msg.message, token: hash.createToken(newUser)});
+            if(ok) return res.status(200).send({message:msg.message, token: hash.createUserToken(newUser)});
             return res.status(400).send(msg);
         });
     }
@@ -107,10 +107,10 @@ class UserCtrl
                 if(ok)
                 {
                     req.user = msg;
-                    let token = hash.createToken(msg);
+                    let token = hash.createUserToken(msg);
                     return res.status(200).send({info: "Logged  "+ msg.email, token: token});
                     
-                }else return res.status(400).send({info: msg});
+                }else return res.status(404).send({info: msg});
             });
         }else return res.status(400).send({error:"Need to provide a correct request body"});
     }

@@ -42,7 +42,7 @@ class CommunityActions
             {
                 if(ok)
                 {
-                    User.getUsersIds(newCommunity.user_admin,(admins)=>
+                    user.getUsersIds(newCommunity.user_admin,(admins)=>
                     {
                         newCommunity.user_admin = admins;
                         newCommunity.user_admin.push(newCommunity.creator);
@@ -67,22 +67,15 @@ class CommunityActions
         });        
     }
         
+        
+        
     generateCommunityToken(data)
     {
         let token = hat();
         return data+token.slice(0,4);
     }
     
-    generateCommunitySecret(data)
-    {
-        let abc = "abcdefghijklmnopqrstuvwxyz";        
-        var token = hat();      
-        for (l in data) 
-           token+= abc.indexOf(data[l])   
-        
-        return token;
-    }
-
+    
     registerUser(query,update,cb)
     {
         community.update(query,update,(err,updated)=>
