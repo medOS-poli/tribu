@@ -137,6 +137,17 @@ class CommunityActions
             (err) ? cb(false, { error: err} ) : cb(true, { message: "Community deleted" });
         })
     }
+
+    getUsers(query, cb)
+    {
+        community.aggregate([{$match: query},{$lookup: {from: "Users", localField: "users", foreignField: "_id", as:"communityUsers"}}],(err, communityUsers) =>
+        {
+            if (err) return cb(false, { error: err })
+            if (!communityUsers) return cb(flase, {message: "There are not users"})
+            return cb(true,communityUsers)
+        });
+
+    }
 }
 
 module.exports = {CommunityActions,community};
