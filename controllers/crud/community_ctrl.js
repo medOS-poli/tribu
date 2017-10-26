@@ -23,6 +23,7 @@ class CommunityCtrl
                 inv_token: community.generateCommunityToken(req.body.name),
                 user_admin:req.body.user_admin?(req.body.user_admin).split(","):[],
                 user_moderator: req.body.user_moderator? (req.body.user_moderator).split(",") : [],
+                users: [],
                 privacy: req.body.privacy,
                
             };

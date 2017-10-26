@@ -17,7 +17,7 @@ const communityObject =
     inv_token : {type: String, unique:true, required:true},
     user_admin: [{type: schema.Types.ObjectId, ref: 'Users', require: true }],
     user_moderator: [{type: schema.Types.ObjectId, ref: 'Users' }],
-    users: [{type: schema.Types.ObjectId, ref: 'Users'}],
+    users: [ {_id:false,  id: {type: schema.Types.ObjectId, ref: 'Users'}, type: {type:String, required:true, enum:['ADMIN','MODER','USER'], default:'USER'} }],
     creationDate: {type: Date, default: Date.now()},
     privacy: {type:String, enum:['PRIVATE','PUBLIC','OPEN'], default: 'OPEN', require: true},
     requests: [{type: schema.Types.ObjectId, ref: 'Users'}]
@@ -46,10 +46,14 @@ class CommunityActions
                         newCommunity.user_admin = admins;
                         newCommunity.user_admin.push(newCommunity.creator);
                         
+                        newCommunity.users.push({id: newCommunity.creator, type: 'ADMIN'});
+                        
                         user.getUsersIds(newCommunity.user_moderator,(moderators)=>
                         {
                             newCommunity.user_moderator = moderators;
-                            newCommunity.user_moderator.push(newCommunity.creator); 
+                            newCommunity.user_moderator.push(newCommunity.creator);                            
+                        
+                            newCommunity.users.push({id: newCommunity.creator, type: 'MODER'});
                             
                             community.create(newCommunity,(err)=>
                             {
