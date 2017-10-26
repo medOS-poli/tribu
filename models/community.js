@@ -20,7 +20,8 @@ const communityObject =
     users: [ {_id:false,  id: {type: schema.Types.ObjectId, ref: 'Users'}, type: {type:String, required:true, enum:['ADMIN','MODER','USER'], default:'USER'} }],
     creationDate: {type: Date, default: Date.now()},
     privacy: {type:String, enum:['PRIVATE','PUBLIC','OPEN'], default: 'OPEN', require: true},
-    requests: [{type: schema.Types.ObjectId, ref: 'Users'}]
+    requests: [{type: schema.Types.ObjectId, ref: 'Users'}],
+    secret: {type: String, require: true, unique: true, select:false }
     
 };
 
@@ -91,11 +92,22 @@ class CommunityActions
     {
         community.findOne(query, (err, community) =>
         {
-            if(err) return cb(false, {error: err});
-            if(!community)  return cb(false, {error: "The community doesn't exists"});
+            if(err) return cb(false, {status: 500, error: err});
+            if(!community)  return cb(false, {status: 404, error: "The community doesn't exists"});
                      
             return cb(true, community);
         });
+    }
+    
+    getCommunities(query, exclude, cb)
+    {        
+        community.find(query, exclude, (err, communities) =>
+        {
+            if(err) return cb(false, {status:500, error: err});
+            if(!communities)  return cb(false, {status: 404, error: "The community doesn't exists"});
+                     
+            return cb(true, communities);
+        });       
     }
 
     registerRequest(query,update,cb)
@@ -122,7 +134,7 @@ class CommunityActions
         {
             (err) ? cb(false, { error: err} ) : cb(true, { message: "Community deleted" });
         })
-    }
+    }    
 
     getUsers(communityName, query, cb)
     {         

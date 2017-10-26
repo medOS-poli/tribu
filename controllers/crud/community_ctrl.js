@@ -33,7 +33,7 @@ class CommunityCtrl
             if(newCommunity.name.includes (' ') || newCommunity.logo.includes (' ')) return res.status(400).send("The name can't have spaces");
             community.registerCommunity(newCommunity,(ok,msg)=>
             {
-                if(ok) return res.status(200).send({message: { name: newCommunity.name, inv_token:newCommunity.inv_token, secret: newCommunity.secret } });
+                if(ok) return res.status(200).send({name: newCommunity.name, inv_token:newCommunity.inv_token, secret: newCommunity.secret});
 
                 return res.status(400).send(msg);
             });
