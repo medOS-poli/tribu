@@ -12,13 +12,13 @@ class GroupCtrl
     {
         if(req.body.name || req.body.inv_token)
         {
-            if(req.user.id)
+            if(req.auth.id)
             {
                 community.getCommunity({$or:[{inv_token:req.body.inv_token},{name:req.body.name}]},(ok,msgCommunity)=>
                 {
                     if(ok)
                     {
-                        if((msgCommunity.users).includes(req.user.id))                        
+                        if((msgCommunity.users).includes(req.auth.id))                        
                             group.registerGroup();
                         else 
                             res.status(500).send({message: "You need to be part of the community to create a group"});

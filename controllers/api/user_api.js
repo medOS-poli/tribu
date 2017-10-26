@@ -3,9 +3,9 @@
 const userModel = require('../../models/user');
 const communityModel = require('../../models/community');
 
-const User = new userModel.userActions();
+const User = new userModel.UserActions();
 
-class API
+class UserAPI
 {
     getUser(req, res)
     {
@@ -33,4 +33,4 @@ class API
     }
 }
 
-module.exports = API;
+module.exports = UserAPI;

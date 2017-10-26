@@ -11,7 +11,7 @@ class CommunityCtrl
 {
     signupCommunity(req,res)
     {
-        if(req.user.id && req.body.name)
+        if(req.auth.id && req.body.name)
         {
             var newCommunity =
             {
@@ -19,7 +19,7 @@ class CommunityCtrl
                 title : req.body.title || req.body.name,
                 description : req.body.description || '',
                 logo: req.body.logo || '',
-                creator: req.user.id,
+                creator: req.auth.id,
                 inv_token: community.generateCommunityToken(req.body.name),
                 user_admin:req.body.user_admin?(req.body.user_admin).split(","):[],
                 user_moderator: req.body.user_moderator? (req.body.user_moderator).split(",") : [],
@@ -46,7 +46,7 @@ class CommunityCtrl
         {
             if(ok)
             {
-                if((req.user.id).includes(msgCommunity.creator))
+                if((req.auth.id).includes(msgCommunity.creator))
                 {
                     let newCommunity =
                     {
@@ -81,7 +81,7 @@ class CommunityCtrl
         {
             if(ok)
             { 
-                if((req.user.id).includes(msgCommunity.creator))
+                if((req.auth.id).includes(msgCommunity.creator))
                 {
                     let name = req.body.name;
 

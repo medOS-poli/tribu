@@ -9,7 +9,6 @@ const ctrl = require('../controllers/controller');
 const user = new ctrl.UserCtrl();
 const community = new ctrl.CommunityCtrl();
 const group = new ctrl.GroupCtrl();
-const api = new ctrl.ApiCtrl();
 
 
 /*ROUTES*/

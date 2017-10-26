@@ -1,7 +1,5 @@
 "use strict";
 
-const userCtrl = require('../crud')
-
 const userModel = require('../../models/user');
 const communityModel = require('../../models/community');
 
@@ -15,3 +13,5 @@ class CommunityAPI
         
     }
 }
+
+module.exports = CommunityAPI;

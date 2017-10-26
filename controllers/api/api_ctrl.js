@@ -1,36 +1,10 @@
 "use strict";
 
-const userModel = require('../../models/user');
-const communityModel = require('../../models/community');
-
-const user = new userModel.UserActions();
-
-class API
+const APIControllers =
 {
-    getUser(req, res)
-    {
-        let who =
-        {
-            nick: req.query.nick || null,
-            email: req.query.email || null,
-            id: req.query.id || null
-        }
+    UserAPI: require('./user_api'),
+    CommunityAPI:  require('./community_api'),
+};
 
-        u.getUser({$or:[{email: who.email}, {nick: who.nick}, {_id: who.id}]}, (ok, data) =>
-        {
-            if(ok) return res.status(200).send(data);
-            return res.status(400).send(data); 
-        });
-    }
 
-    getUsers(req, res, next)
-    {
-        user.getAllUsers((ok, data) =>  
-        {
-            if(ok) return res.status(200).send(data);
-            return res.status(500).send(data);
-        });
-    }
-}
-
-module.exports = API;
+module.exports = APIControllers;

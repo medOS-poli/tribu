@@ -4,8 +4,8 @@ const userModel = require('../../models/user'),
     communityModel = require('../../models/community'),
     hash = require('../../services/hash');
 
-const User = new userModel.userActions();
-const Community = new communityModel.communityActions();
+const User = new userModel.UserActions();
+const Community = new communityModel.CommunityActions();
 
 const emailRegex = /^[-\w.%+]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,125}[A-Z]{2,63}$/i
 
@@ -106,7 +106,7 @@ class UserCtrl
             {
                 if(ok)
                 {
-                    req.user = msg;
+                    req.auth = msg;
                     let token = hash.createUserToken(msg);
                     return res.status(200).send({info: "Logged  "+ msg.email, token: token});
                     
@@ -121,7 +121,7 @@ class UserCtrl
         {
             if(ok)
             {
-                if((msgUser.email).includes(req.user.email) || (msgUser.nick).includes(req.user.nick))
+                if((msgUser.email).includes(req.auth.email) || (msgUser.nick).includes(req.auth.nick))
                 {
                     let newUser =
                     {
