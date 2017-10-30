@@ -142,8 +142,8 @@ class CommunityActions
          community.aggregate([{$match: communityName },{$unwind:"$users"},{$lookup: {from: "Users", localField: "users.id", foreignField: "_id", as:"communityUsers"}},{$project: {type: "$users.type", user: "$communityUsers"} },{$match: query}, {$project: {"user.password":0}}],(err, communityUsers) =>
         {
             if (err) return cb(false, { status: 500, error: err })
-            if (!communityUsers) return cb(false, {status: 400, error: "Not users found"})
-            if (communityUsers.length<1) return cb(false, {status: 400, error: "Not users found"})
+            if (!communityUsers) return cb(false, {status: 404, error: "Not users found"})
+            if (communityUsers.length<1) return cb(false, {status: 418, error: "Not users found"})
             return cb(true,communityUsers)
         });
 
