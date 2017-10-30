@@ -108,9 +108,9 @@ class UserCtrl
                 {
                     req.auth = msg;
                     let token = hash.createUserToken(msg);
-                    return res.status(200).send({info: "Logged  "+ msg.email, token: token});
+                    return res.status(200).send({user: msg.email, token: token});
                     
-                }else return res.status(404).send({info: msg});
+                }else return res.status(msg.status).send({error: msg.error});
             });
         }else return res.status(400).send({error:"Need to provide a correct request body"});
     }

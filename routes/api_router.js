@@ -9,6 +9,8 @@ const ctrl = require('../controllers/controller');
 const communityAPI = new ctrl.CommunityAPI();
 
 /*ROUTES*/
+
+base.get('/API/community/loginUser/:email?:nick?:password?', auth, communityAPI.loginUser);
 base.get('/API/community/getUsers/:type?:group?:nick?:email?', auth, communityAPI.getUsersCommunity);
 
 

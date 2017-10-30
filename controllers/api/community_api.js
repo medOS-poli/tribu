@@ -1,10 +1,13 @@
 "use strict";
 
-const userModel = require('../../models/user');
-const communityModel = require('../../models/community');
+const userModel = require('../../models/user'),
+    communityModel = require('../../models/community'),
+    hash = require('../../services/hash');
+
 
 const user = new userModel.UserActions();
 const community = new communityModel.CommunityActions()
+
 
 class CommunityAPI
 {
@@ -44,6 +47,37 @@ class CommunityAPI
            
         }else return res.status(400).send({message: "Incomplete query"});
         
+    }
+    
+    loginUser(req,res)
+    {
+        if((req.query.nick || req.query.email) && req.query.password)
+        {            
+            user.passUser(req.query,(ok, msgPassUser)=>
+            {
+                if(ok)
+                {
+                    let communityName= {name: req.auth.name};
+                    let query = { $or:[  {"user.email": msgPassUser.email }, {"user.nick": msgPassUser.nick} ]};
+                    
+                    community.getUsers(communityName, query, (ok, msgUser)=>
+                    {
+                        
+                        if(ok)
+                        {
+                            let token = hash.createUserToken(msgUser);
+
+                            return res.status(200).send({type: msgUser[0].type, user: msgUser[0].user[0], token: token});
+                            
+                        }else return res.status(msgUser.status).send({error:msgUser.error})
+                        
+                    });                   
+                    
+                }else return res.status(msgPassUser.status).send({error: msgPassUser.error});
+                
+            });
+            
+        }
     }
 }
 

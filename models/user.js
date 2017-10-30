@@ -70,13 +70,13 @@ class UserActions
     {
         user.findOne({$or:[{email: who.email},{nick: who.nick}]}, {password:1, email:1, nick:1}, (err,user) => //=> function
         {            
-            if(err) return cb(false,{error: err});
-            if(!user)  return cb(false, {error: "User doesn't exists"});
+            if(err) return cb(false,{status: 500, error: err});
+            if(!user)  return cb(false, {status: 404, error: "User doesn't exists"});
                      
             user.pass(who.password, (ok,message) =>
             {               
                 if(ok) return cb(true, user);                                  
-                return cb(false, {error:"Password is incorrect"});               
+                return cb(false, {status: 401, error:"Password is incorrect"});               
             });        
             
         });
@@ -96,8 +96,8 @@ class UserActions
     {
         user.find(query, (err, users) =>
         {
-            if(err) return cb(false, {error: err});
-            if(!users)  return cb(false, {error: "The user doesn't exists"});
+            if(err) return cb(false, {status: 500, error: err});
+            if(!users)  return cb(false, {status: 404, error: "The user doesn't exists"});
                      
             return cb(true, users); 
         });
