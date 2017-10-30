@@ -143,6 +143,7 @@ class CommunityActions
         {
             if (err) return cb(false, { status: 500, error: err })
             if (!communityUsers) return cb(false, {status: 400, error: "Not users found"})
+            if (communityUsers.length<1) return cb(false, {status: 400, error: "Not users found"})
             return cb(true,communityUsers)
         });
 
