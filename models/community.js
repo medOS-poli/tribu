@@ -20,7 +20,8 @@ const communityObject =
     users: [ {_id:false,  id: {type: schema.Types.ObjectId, ref: 'Users'}, type: {type:String, required:true, enum:['ADMIN','MODER','USER'], default:'USER'} }],
     creationDate: {type: Date, default: Date.now()},
     privacy: {type:String, enum:['PRIVATE','PUBLIC','OPEN'], default: 'OPEN', require: true},
-    requests: [{type: schema.Types.ObjectId, ref: 'Users'}]
+    requests: [{type: schema.Types.ObjectId, ref: 'Users'}],
+    secret: {type: String, require: true, unique: true, select:false }
     
 };
 
@@ -91,11 +92,22 @@ class CommunityActions
     {
         community.findOne(query, (err, community) =>
         {
-            if(err) return cb(false, {error: err});
-            if(!community)  return cb(false, {error: "The community doesn't exists"});
+            if(err) return cb(false, {status: 500, error: err});
+            if(!community)  return cb(false, {status: 404, error: "The community doesn't exists"});
                      
             return cb(true, community);
         });
+    }
+    
+    getCommunities(query, exclude, cb)
+    {        
+        community.find(query, exclude, (err, communities) =>
+        {
+            if(err) return cb(false, {status:500, error: err});
+            if(!communities)  return cb(false, {status: 404, error: "The community doesn't exists"});
+                     
+            return cb(true, communities);
+        });       
     }
 
     registerRequest(query,update,cb)
@@ -122,18 +134,32 @@ class CommunityActions
         {
             (err) ? cb(false, { error: err} ) : cb(true, { message: "Community deleted" });
         })
-    }
+    }    
 
-    getUsers(query, cb)
-    {
-        community.aggregate([{$match: query},{$lookup: {from: "Users", localField: "users", foreignField: "_id", as:"communityUsers"}}],(err, communityUsers) =>
+    getUsers(communityName, query, cb)
+    {         
+          console.log(communityName, query);   
+         community.aggregate([{$match: communityName },{$unwind:"$users"},{$lookup: {from: "Users", localField: "users.id", foreignField: "_id", as:"communityUsers"}},{$project: {type: "$users.type", user: "$communityUsers"} },{$match: query}, {$project: {"user.password":0}}],(err, communityUsers) =>
         {
-            if (err) return cb(false, { error: err })
-            if (!communityUsers) return cb(flase, {message: "There are not users"})
+            if (err) return cb(false, { status: 500, error: err })
+            if (!communityUsers || communityUsers.length<1) return cb(false, {status: 418, error: "Not users found"})
+            
             return cb(true,communityUsers)
         });
 
     }
 }
+
+
+
+/*
+db.Communities.aggregate([{$match: {$and: [{name: "medos"}, { users: { $elemMatch: { type: "ADMIN" } } } ]}},{$lookup: {from: "Users", localField: "users.id", foreignField: "_id", as:"communityUsers"}},{$project:{ communityUsers:1}}]).pretty()
+
+db.Communities.aggregate([{$match: {name: "medos"}},{$lookup: {from: "Users", localField: "users.id", foreignField: "_id", as:"communityUsers"}} ,{$project:{ communityUsers:1}}]).pretty()
+
+
+db.Communities.aggregate([{$match: {name: "medos"}},{$unwind:"$users"},{$lookup: {from: "Users", localField: "users.id", foreignField: "_id", as:"communityUsers"}},{$project: {type: $type, user: $communityUsers} }]).pretty()*/
+
+// aggregate([{$match: {name: "medos"}},{$lookup: {from: "Users", localField: "users.id", foreignField: "_id", as:"communityUsers"}}, {$unwind: "$communityUsers"  }, { $project : { _id : 1}}]).pretty()
 
 module.exports = {CommunityActions,community};
