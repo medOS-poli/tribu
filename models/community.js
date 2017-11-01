@@ -21,8 +21,7 @@ const communityObject =
     creationDate: {type: Date, default: Date.now()},
     privacy: {type:String, enum:['PRIVATE','PUBLIC','OPEN'], default: 'OPEN', require: true},
     requests: [{type: schema.Types.ObjectId, ref: 'Users'}],
-    secret: {type: String, require: true, unique: true, select:false }
-    
+    secret: {type: String, require: true, unique: true, select:false }    
 };
 
 const communitySchema = new schema(communityObject,{collection : "Communities"});
@@ -36,8 +35,7 @@ class CommunityActions
         this.getCommunity({name:newCommunity.name},(ok,msgCommunity)=>
         {
             if(ok) return cb(false, {error:"Community already exists"});            
-            console.log("NEWCOMMUNITY>>",newCommunity);           
-            
+
             user.getUser({_id:newCommunity.creator}, (ok,msg)=>
             {
                 if(ok)
@@ -45,15 +43,13 @@ class CommunityActions
                     user.getUsersIds(newCommunity.user_admin,(admins)=>
                     {
                         newCommunity.user_admin = admins;
-                        newCommunity.user_admin.push(newCommunity.creator);
-                        
+                        newCommunity.user_admin.push(newCommunity.creator);                        
                         newCommunity.users.push({id: newCommunity.creator, type: 'ADMIN'});
                         
                         user.getUsersIds(newCommunity.user_moderator,(moderators)=>
                         {
                             newCommunity.user_moderator = moderators;
-                            newCommunity.user_moderator.push(newCommunity.creator);                            
-                        
+                            newCommunity.user_moderator.push(newCommunity.creator);                       
                             newCommunity.users.push({id: newCommunity.creator, type: 'MODER'});
                             
                             community.create(newCommunity,(err)=>
@@ -61,17 +57,13 @@ class CommunityActions
                                 if(err) 
                                     return cb(false,{ error:"Couln't register new community: "+err});
                                 else return cb(true,{message: "Community registered! Yay!"});
-                            });
-                            
-                        });                        
-                        
+                            });                            
+                        });      
                     });                    
                 }else return cb(false,msg);                    
             });        
         });        
-    }
-        
-        
+    }      
         
     generateCommunityToken(data)
     {
@@ -133,20 +125,18 @@ class CommunityActions
         community.remove(query, (err, remove) => 
         {
             (err) ? cb(false, { error: err} ) : cb(true, { message: "Community deleted" });
-        })
+        });
     }    
 
     getUsers(communityName, query, cb)
-    {         
-          console.log(communityName, query);   
-         community.aggregate([{$match: communityName },{$unwind:"$users"},{$lookup: {from: "Users", localField: "users.id", foreignField: "_id", as:"communityUsers"}},{$project: {type: "$users.type", user: "$communityUsers"} },{$match: query}, {$project: {"user.password":0}}],(err, communityUsers) =>
+    {          
+        community.aggregate([{$match: communityName },{$unwind:"$users"},{$lookup: {from: "Users", localField: "users.id", foreignField: "_id", as:"communityUsers"}},{$project: {type: "$users.type", user: "$communityUsers"} },{$match: query}, {$project: {"user.password":0}}],(err, communityUsers) =>
         {
             if (err) return cb(false, { status: 500, error: err })
             if (!communityUsers || communityUsers.length<1) return cb(false, {status: 418, error: "Not users found"})
             
             return cb(true,communityUsers)
         });
-
     }
 }
 

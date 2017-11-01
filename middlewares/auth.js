@@ -12,7 +12,6 @@ function isAuth( req, res, next)
         
     hash.decodeToken(token).then(response =>
     {
-        console.log(response.nick);
         req.auth = response;
         next();        
     })

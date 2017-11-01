@@ -35,7 +35,6 @@ userSchema.methods.pass = function(pass,cb)
 
 var hashPasswordSave = function(next) 
 {
-    console.log("I'm on the prev save function");
     var user = this;    
     if (!this.isModified('password')) return next();    
     bcrypt.genSalt(ENCRYPT_SALT_VALUE, (err,salt) =>
@@ -77,8 +76,7 @@ class UserActions
             {               
                 if(ok) return cb(true, user);                                  
                 return cb(false, {status: 401, error:"Password is incorrect"});               
-            });        
-            
+            });                  
         });
     }
     
@@ -108,7 +106,8 @@ class UserActions
         user.find({},(err, users) =>
         {
             if(err) return cb(false, {error: err});
-            if(!user) return cb(false, {error: "There are no users"})
+            if(!user) return cb(false, {error: "There are no users"});
+
             return cb(true, users);
         });
     }
@@ -117,8 +116,7 @@ class UserActions
     {
         var usersIds = [];
         if (typeof users !== 'undefined' && users.length > 0) 
-        {
-          
+        {          
             var onComplete = function()
             {
                 cb(usersIds);

@@ -10,7 +10,6 @@ const user = new ctrl.UserCtrl();
 const community = new ctrl.CommunityCtrl();
 const group = new ctrl.GroupCtrl();
 
-
 /*ROUTES*/
 base.post('/newUser', user.signupUser);
 base.post('/newCommunity', auth, community.signupCommunity);

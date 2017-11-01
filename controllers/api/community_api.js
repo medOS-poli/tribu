@@ -23,11 +23,9 @@ class CommunityAPI
             community.getUsers(communityName, query ,(ok,msgUsers)=>
             {
                 if(ok) return res.status(200).send(msgUsers); 
-                else return res.status(msgUsers.status).send({error:msgUsers.error}); 
-              
+                else return res.status(msgUsers.status).send({error:msgUsers.error});               
             });
-            
-            
+
         }else return res.status(401).send({message:"You don't have permission"})
     }
     
@@ -45,8 +43,7 @@ class CommunityAPI
                 else return res.status(msgCommunities.status).send({error: msgCommunities.error});
             }); 
            
-        }else return res.status(400).send({message: "Incomplete query"});
-        
+        }else return res.status(400).send({message: "Incomplete query"});        
     }
     
     loginUser(req,res)
@@ -61,22 +58,18 @@ class CommunityAPI
                     let query = { $or:[  {"user.email": msgPassUser.email }, {"user.nick": msgPassUser.nick} ]};
                     
                     community.getUsers(communityName, query, (ok, msgUser)=>
-                    {
-                        
+                    {                        
                         if(ok)
                         {
                             let token = hash.createUserToken(msgUser);
 
                             return res.status(200).send({type: msgUser[0].type, user: msgUser[0].user[0], token: token});
                             
-                        }else return res.status(msgUser.status).send({error:msgUser.error})
-                        
+                        }else return res.status(msgUser.status).send({error:msgUser.error})                        
                     });                   
-                    
-                }else return res.status(msgPassUser.status).send({error: msgPassUser.error});
-                
-            });
-            
+
+                }else return res.status(msgPassUser.status).send({error: msgPassUser.error});                
+            });            
         }
     }
 }

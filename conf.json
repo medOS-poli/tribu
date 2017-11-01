@@ -7,7 +7,6 @@
     "auth" :
     {
         "SECRET_TOKEN": "medosPoliSecretTKN"
-
     },
   
     "session":
