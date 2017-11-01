@@ -35,7 +35,6 @@ userSchema.methods.pass = function(pass,cb)
 
 var hashPasswordSave = function(next) 
 {
-    console.log("I'm on the prev save function");
     var user = this;    
     if (!this.isModified('password')) return next();    
     bcrypt.genSalt(ENCRYPT_SALT_VALUE, (err,salt) =>
@@ -55,7 +54,7 @@ userSchema.pre('save',hashPasswordSave);
 
 const user = mongoose.model('User', userSchema);
 
-class userActions
+class UserActions
 {
     registerUser(newUser, cb) 
     {        
@@ -70,15 +69,14 @@ class userActions
     {
         user.findOne({$or:[{email: who.email},{nick: who.nick}]}, {password:1, email:1, nick:1}, (err,user) => //=> function
         {            
-            if(err) return cb(false,{error: err});
-            if(!user)  return cb(false, {error: "User doesn't exists"});
+            if(err) return cb(false,{status: 500, error: err});
+            if(!user)  return cb(false, {status: 404, error: "User doesn't exists"});
                      
             user.pass(who.password, (ok,message) =>
             {               
                 if(ok) return cb(true, user);                                  
-                return cb(false, {error:"Password is incorrect"});               
-            });        
-            
+                return cb(false, {status: 401, error:"Password is incorrect"});               
+            });                  
         });
     }
     
@@ -96,8 +94,8 @@ class userActions
     {
         user.find(query, (err, users) =>
         {
-            if(err) return cb(false, {error: err});
-            if(!users)  return cb(false, {error: "The user doesn't exists"});
+            if(err) return cb(false, {status: 500, error: err});
+            if(!users)  return cb(false, {status: 404, error: "The user doesn't exists"});
                      
             return cb(true, users); 
         });
@@ -108,7 +106,8 @@ class userActions
         user.find({},(err, users) =>
         {
             if(err) return cb(false, {error: err});
-            if(!user) return cb(false, {error: "There are no users"})
+            if(!user) return cb(false, {error: "There are no users"});
+
             return cb(true, users);
         });
     }
@@ -117,8 +116,7 @@ class userActions
     {
         var usersIds = [];
         if (typeof users !== 'undefined' && users.length > 0) 
-        {
-          
+        {          
             var onComplete = function()
             {
                 cb(usersIds);
@@ -149,4 +147,4 @@ class userActions
     }
 }
 
-module.exports = {userActions,user};
+module.exports = {UserActions,user};

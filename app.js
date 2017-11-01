@@ -18,8 +18,6 @@ process.setMaxListeners(0);
 let app = express();
 
 /*APP PROPS*/
-// app.set('views', viewsDir);
-// app.set('view engine', 'pug');
 app
     .set( 'port', port )
     .use( bodyParser.json() )
